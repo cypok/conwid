@@ -1,5 +1,5 @@
 using System;
-using Core;
+using Conwid.Core;
 
 namespace Demo
 {
@@ -7,7 +7,14 @@ namespace Demo
     {
         public static void Main (string[] args)
         {
-            Console.WriteLine ("Hello World!");
+            var t1 = new Transmitter();
+            var t2 = new Transmitter();
+            t1.Friend = t2;
+            t2.Friend = t1;
+
+            t1.PostMessage( new PingMessage() );
+
+            MessageLoop.Instance.Run();
         }
     }
 }
