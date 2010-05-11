@@ -8,23 +8,17 @@ namespace Demo
     {
         public static void Main (string[] args)
         {
-            var allowedRect = new Rectangle( 10, 10, 20, 10 );
-            var ds = new DrawSpace(allowedRect);
-            ds.PutCharacter( new Point(0,0), '<' );
-            ds.PutCharacter( new Point(10,5), '*' );
-            ds.PutCharacter( new Point(21,5), '!');
-            ds.PutCharacter( new Point(5,21), '!');
-            ds.PutCharacter( new Point(-5,-5), '!');
+            var bad_rects = new Rectangle[]{
+                new Rectangle(15,15,20,20),
+                new Rectangle(0,0,11,11),
+            };
 
-            ds.HorisontalLine( new Point(2,3), 10, "123" );
-            ds.HorisontalLine( new Point(-2,7), 40, "*" );
+            var ds = new DrawSpace(new Rectangle( 10, 10, 20, 10 ), bad_rects);
 
-            ds.VerticalLine( new Point (18,0), ds.Size.Height, "$" );
-            ds.VerticalLine( new Point (1,1), 0, "?!" );
-            ds.VerticalLine( new Point (13,1), 4, "yes!" );
+            ds.DrawRectangle(new Rectangle(Point.Empty, ds.Size), "+");
 
-            ds.Rectangle( new Rectangle( Point.Empty, ds.Size ), "#");
-            ds.Rectangle( new Rectangle( 10, 6, 6, 3 ), ",.");
+            ds.PutString(new Point(1,1), "X O _ Application");
+            ds.DrawLine(new Point(1,2), new Point(ds.Size.Width-2,2), "-");
 
             ds.PutCharacter( new Point(19,9), '>');
         }

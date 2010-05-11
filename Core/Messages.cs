@@ -13,8 +13,7 @@ namespace Conwid
             public sealed class QuitMessage : SystemMessage
             {
                 public int Code { get; private set; }
-                public QuitMessage(int code) { Code = code; }
-                public QuitMessage () { Code = 0; }
+                public QuitMessage(int code = 0) { Code = code; }
             }
         }
     }

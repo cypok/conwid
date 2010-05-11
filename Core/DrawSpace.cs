@@ -23,24 +23,14 @@ namespace Conwid
             #endregion Fields & Properties 
             
             #region Constructors
-
-            private void Init(Rectangle allowed, IEnumerable<Rectangle> denied)
+            
+            public DrawSpace(Rectangle allowed, IEnumerable<Rectangle> denied = null)
             {
-                if(allowed == null || denied == null)
+                if(allowed == null)
                     throw new ArgumentNullException();
 
                 allowedRect = allowed;
-                deniedRects = denied;
-            }
-
-            public DrawSpace(Rectangle allowed, IEnumerable<Rectangle> denied)
-            {
-                Init(allowed, denied);
-            }
-
-            public DrawSpace(Rectangle allowed)
-            {
-                Init(allowed, new Rectangle[0]);
+                deniedRects = denied != null ? denied : new Rectangle[0];
             }
 
             #endregion Constructors
@@ -49,47 +39,55 @@ namespace Conwid
 
             public void PutCharacter(Point point, char ch)
             {
-                if(point == null)
-                    return;
-
                 point.Offset( allowedRect.Location );
-                if( allowedRect.Contains(point) && ! deniedRects.Any( x => x.Contains(point) ) )
+                if( allowedRect.Contains(point) && deniedRects.All( x => ! x.Contains(point) ) )
                 {
                     Console.SetCursorPosition(point.X, point.Y);
                     Console.Write(ch);
                 }
             }
 
-            private delegate Size IntToSize(int i);
-
-            private void Line(Point from, int length, string pattern, IntToSize intToSize)
+            public void DrawLine(Point from, Point to, string pattern)
             {
-                if( intToSize == null || pattern == null)
-                    return;
+                if( pattern == null )
+                    throw new ArgumentNullException();
 
-                for(int i = 0; i < length; ++i)
+                Func<int, Size> intToSize;
+                int diff;
+                if( from.Y == to.Y )
+                {
+                    diff = to.X - from.X;
+                    intToSize = i => new Size(i*Math.Sign(diff), 0);
+                }
+                else if( from.X == to.X)
+                {
+                    diff = to.Y - from.Y;
+                    intToSize = i => new Size(0, i*Math.Sign(diff));
+                }
+                else
+                    throw new ArgumentException("bad type of line");
+
+                for(int i = 0; i < Math.Abs(diff) + 1; ++i)
                 {
                     PutCharacter(from + intToSize(i), pattern[i % pattern.Length]);
                 }
             }
-            
-            public void HorisontalLine(Point from, int length, string pattern)
+
+            public void PutString(Point from, string str)
             {
-                Line(from, length, pattern, i => new Size(i, 0));
+                DrawLine(from, from + new Size(str.Length-1,0), str);
             }
 
-            public void VerticalLine(Point from, int length, string pattern)
+            public void DrawRectangle(Rectangle rect, string pattern)
             {
-                Line(from, length, pattern, i => new Size(0, i));
-            }
+                if( pattern == null )
+                    throw new ArgumentNullException();
 
-            public void Rectangle(Rectangle rect, string pattern)
-            {
                 // TODO: better alternation
-                VerticalLine(rect.Location, rect.Height, pattern);
-                VerticalLine(rect.Location + new Size(rect.Width-1, 0), rect.Height, pattern);
-                HorisontalLine(rect.Location, rect.Width, pattern);
-                HorisontalLine(rect.Location + new Size(0, rect.Height-1), rect.Width, pattern);
+                DrawLine(new Point(rect.Left,    rect.Top     ), new Point(rect.Right-1, rect.Top     ), pattern);
+                DrawLine(new Point(rect.Right-1, rect.Top     ), new Point(rect.Right-1, rect.Bottom-1), pattern);
+                DrawLine(new Point(rect.Right-1, rect.Bottom-1), new Point(rect.Left,    rect.Bottom-1), pattern);
+                DrawLine(new Point(rect.Left,    rect.Bottom-1), new Point(rect.Left,    rect.Top     ), pattern);
             }
 
             #endregion Drawing Methods
