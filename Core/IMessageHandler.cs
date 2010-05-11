@@ -1,25 +1,22 @@
 using System;
 
-namespace Conwid
+namespace Conwid.Core
 {
-    namespace Core
+    public interface IMessageHandler
     {
-        public interface IMessageHandler
+        void Handle(IMessage msg);
+    }
+
+    public static class MessageHandlerExtensions
+    {
+        public static void PostMessage(this IMessageHandler rcv, IMessage msg)
         {
-            void Handle(IMessage msg);
+            MessageLoop.Instance.PostMessage(rcv, msg);
         }
 
-        public static class MessageHandlerExtensions
+        public static void SendMessage(this IMessageHandler rcv, IMessage msg)
         {
-            public static void PostMessage(this IMessageHandler rcv, IMessage msg)
-            {
-                MessageLoop.Instance.PostMessage(rcv, msg);
-            }
-
-            public static void SendMessage(this IMessageHandler rcv, IMessage msg)
-            {
-                MessageLoop.Instance.SendMessage(rcv, msg);
-            }
+            MessageLoop.Instance.SendMessage(rcv, msg);
         }
     }
 }

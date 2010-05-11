@@ -1,11 +1,9 @@
 using System;
 
-namespace Conwid
+namespace Conwid.Core
 {
-    namespace Core
+    public interface IMessage
     {
-        public interface IMessage
-        {
-        }
     }
 }
+
