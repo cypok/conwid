@@ -6,8 +6,9 @@ using System.Drawing;
 
 namespace Conwid.Core
 {
-    abstract class Widget : IMessageHandler
+    public abstract class Widget : IMessageHandler
     {
+        // TODO: setter notifying WidgetManager about resizing
         public Rectangle Position { get; protected set; }
 
         public Widget(Rectangle pos)

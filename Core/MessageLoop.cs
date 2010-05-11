@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Conwid.Core.Messages;
 
 namespace Conwid.Core
 {
+    using Messages;
+    
     struct MesssageContainer
     {
         public IMessage message;
@@ -53,6 +54,8 @@ namespace Conwid.Core
             receiver.Handle(msg);
         }
             
+        // Handles:
+        // * QuitMessage
         public void Handle(IMessage msg)
         {
             if(msg is QuitMessage)

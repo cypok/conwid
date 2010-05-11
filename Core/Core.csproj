@@ -50,6 +50,11 @@
     <Compile Include="IMessage.cs" />
     <Compile Include="Messages.cs" />
     <Compile Include="Widget.cs" />
+    <Compile Include="WidgetManager.cs" />
+    <Compile Include="Widgets\Frame.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
