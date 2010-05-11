@@ -42,6 +42,7 @@ namespace Conwid.Core
             {
                 Console.SetCursorPosition(point.X, point.Y);
                 Console.Write(ch);
+                Console.SetCursorPosition(0, 0);
             }
         }
 

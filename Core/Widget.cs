@@ -9,14 +9,14 @@ namespace Conwid.Core
     public abstract class Widget : IMessageHandler
     {
         // TODO: setter notifying WidgetManager about resizing
-        public Rectangle Position { get; protected set; }
+        public Rectangle Area { get; protected set; }
 
-        public Widget(Rectangle pos)
+        public Widget(Rectangle area)
         {
-            if(pos == null)
+            if(area == null)
                 throw new ArgumentNullException();
 
-            Position = pos;
+            Area = area;
         }
 
         abstract public void Handle(IMessage msg);

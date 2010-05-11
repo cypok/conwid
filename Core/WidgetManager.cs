@@ -31,16 +31,27 @@ namespace Conwid.Core
         // * RemoveWidgetMessage
         public void Handle(IMessage msg)
         {
-            if(msg is      AddWidgetMessage)
+            if(msg is WidgetManipulationMessage)
             {
-                var w = (msg as AddWidgetMessage).Widget;
-                if(widgets.Contains(w))
-                    throw new InvalidOperationException("Widget already added to WidgetManager");
-                widgets.Add(w);
-            }
-            else if(msg is RemoveWidgetMessage)
-            {
-                widgets.Remove( (msg as RemoveWidgetMessage).Widget );
+                var w = (msg as WidgetManipulationMessage).Widget;
+                
+                if(msg is AddWidgetMessage)
+                {
+                    if(widgets.Contains(w))
+                        throw new InvalidOperationException("Widget already added to WidgetManager");
+                    widgets.Insert(0, w);
+                }
+                else if(msg is RemoveWidgetMessage)
+                {
+                    widgets.Remove(w);
+                }
+                else if(msg is RedrawWidgetMessage)
+                {
+                    if(!widgets.Contains(w))
+                        throw new InvalidOperationException("Widget not added to WidgetManager being redrawed");
+                    w.Draw( new DrawSpace(w.Area,
+                        widgets.FindAll(x => widgets.IndexOf(x) < widgets.IndexOf(w)).Select(x => x.Area)) );
+                }
             }
         }
 

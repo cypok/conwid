@@ -17,10 +17,14 @@ namespace Conwid.Core.Messages
     }
     public sealed class AddWidgetMessage : WidgetManipulationMessage
     {
-        public AddWidgetMessage(Widget w): base(w) {}
+        public AddWidgetMessage(Widget w) : base(w) {}
     }
     public sealed class RemoveWidgetMessage : WidgetManipulationMessage
     {
-        public RemoveWidgetMessage(Widget w): base(w) {}
+        public RemoveWidgetMessage(Widget w) : base(w) {}
+    }
+    public sealed class RedrawWidgetMessage : WidgetManipulationMessage
+    {
+        public RedrawWidgetMessage(Widget w) : base(w) {}
     }
 }

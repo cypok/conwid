@@ -13,17 +13,19 @@ namespace Demo
         {
             var widgets = new Widget[]
             {
-                new Frame( new Rectangle(2,2,10,5) ),
-                new Frame( new Rectangle(2,2,10,5) ),
+                new Frame( new Rectangle(3,13,10,5) ),
+                new Frame( new Rectangle(8,15,10,5) ),
             };
 
             foreach (var w in widgets)
-            {
                 WidgetManager.Instance.PostMessage(new AddWidgetMessage(w));
-            }
+            foreach (var w in widgets)
+                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(w));
+
             MessageLoop.Instance.PostMessage(new QuitMessage());
             
             MessageLoop.Instance.Run();
+
             Console.WriteLine( WidgetManager.Instance.DebugDump() );
         }
     }
