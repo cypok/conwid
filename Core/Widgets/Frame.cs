@@ -17,7 +17,9 @@ namespace Conwid.Core.Widgets
 
         public override void Draw(DrawSpace ds)
         {
-            ds.DrawRectangle(new Rectangle(Point.Empty, ds.Size), "+");
+            ds.DrawRectangle(new Rectangle(Point.Empty, ds.Size), '+');
+            ds.FillRectangle(new Rectangle(new Point(1,1),
+                    new Size(ds.Size.Width - 2, ds.Size.Height - 2)), ' ');
         }
     }
 }

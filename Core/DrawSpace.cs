@@ -46,7 +46,7 @@ namespace Conwid.Core
             }
         }
 
-        public void DrawLine(Point from, Point to, string pattern)
+        public void DrawPatternLine(Point from, Point to, string pattern)
         {
             if( pattern == null )
                 throw new ArgumentNullException();
@@ -72,21 +72,29 @@ namespace Conwid.Core
             }
         }
 
-        public void PutString(Point from, string str)
+        public void DrawLine(Point from, Point to, char ch)
         {
-            DrawLine(from, from + new Size(str.Length-1,0), str);
+            DrawPatternLine(from, to, ch.ToString());
         }
 
-        public void DrawRectangle(Rectangle rect, string pattern)
+        public void PutString(Point from, string str)
         {
-            if( pattern == null )
-                throw new ArgumentNullException();
+            DrawPatternLine(from, from + new Size(str.Length-1,0), str);
+        }
 
-            // TODO: better alternation
-            DrawLine(new Point(rect.Left,    rect.Top     ), new Point(rect.Right-1, rect.Top     ), pattern);
-            DrawLine(new Point(rect.Right-1, rect.Top     ), new Point(rect.Right-1, rect.Bottom-1), pattern);
-            DrawLine(new Point(rect.Right-1, rect.Bottom-1), new Point(rect.Left,    rect.Bottom-1), pattern);
-            DrawLine(new Point(rect.Left,    rect.Bottom-1), new Point(rect.Left,    rect.Top     ), pattern);
+        public void DrawRectangle(Rectangle rect, char ch)
+        {
+            DrawLine(new Point(rect.Left,    rect.Top     ), new Point(rect.Right-1, rect.Top     ), ch);
+            DrawLine(new Point(rect.Right-1, rect.Top     ), new Point(rect.Right-1, rect.Bottom-1), ch);
+            DrawLine(new Point(rect.Right-1, rect.Bottom-1), new Point(rect.Left,    rect.Bottom-1), ch);
+            DrawLine(new Point(rect.Left,    rect.Bottom-1), new Point(rect.Left,    rect.Top     ), ch);
+        }
+
+        public void FillRectangle(Rectangle rect, char ch)
+        {
+            for(int x = rect.Left; x < rect.Right; x++)
+                for(int y = rect.Top; y < rect.Bottom; y++)
+                    PutCharacter(new Point(x,y), ch);
         }
 
         #endregion Drawing Methods
