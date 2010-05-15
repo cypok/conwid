@@ -22,6 +22,7 @@ namespace Demo
                 new CheckBox( new Point(3,20), "nsu student"),
                 new CheckBox( new Point(3,21), "love to DaftPunk", width: 14),
                 new CheckBox( new Point(3,22), "love to Ruby", value: true),
+                new Label( new Point(25,0), "\\\\ C# sucks! //"),
             };
 
             foreach (var w in widgets)
