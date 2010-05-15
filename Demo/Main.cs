@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 
 using Conwid.Core;
@@ -19,6 +19,9 @@ namespace Demo
                 new LineEdit( new Point(2,1), 15, "Hello, World!"),
                 new LineEdit( new Point(20,2), 15, ""),
                 new LineEdit( new Point(15,0), 4, "0123456789"),
+                new CheckBox( new Point(3,20), "nsu student"),
+                new CheckBox( new Point(3,21), "love to DaftPunk", width: 14),
+                new CheckBox( new Point(3,22), "love to Ruby", value: true),
             };
 
             foreach (var w in widgets)
