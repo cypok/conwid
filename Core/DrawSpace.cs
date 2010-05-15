@@ -14,6 +14,13 @@ namespace Conwid.Core
 
     public sealed class DrawSpace
     {
+        #region Constants
+        
+        public const string SingleBorder = "┌┐┘└─│─│";
+        public const string DoubleBorder = "╔╗╝╚═║═║";        
+
+        #endregion Constants
+
         #region Fields & Properties
 
         private Rectangle allowedRect;
@@ -121,6 +128,27 @@ namespace Conwid.Core
             DrawLine(new Point(rect.Right-1, rect.Top     ), new Point(rect.Right-1, rect.Bottom-1), ch);
             DrawLine(new Point(rect.Right-1, rect.Bottom-1), new Point(rect.Left,    rect.Bottom-1), ch);
             DrawLine(new Point(rect.Left,    rect.Bottom-1), new Point(rect.Left,    rect.Top     ), ch);
+        }
+
+        public void DrawBorder(Rectangle rect, string pattern = SingleBorder, string title = null)
+        {
+            // corners
+            PutCharacter(new Point(rect.Left,    rect.Top     ), pattern[0]);
+            PutCharacter(new Point(rect.Right-1, rect.Top     ), pattern[1]);
+            PutCharacter(new Point(rect.Right-1, rect.Bottom-1), pattern[2]);
+            PutCharacter(new Point(rect.Left,    rect.Bottom-1), pattern[3]);
+
+            // title
+            var maxTitleLength = rect.Width - 2;
+            if( title != null )
+                PutString(new Point(rect.Left+1, rect.Top), title, maxTitleLength);
+
+            // borders
+            if( title == null || title.Length < maxTitleLength )
+                DrawLine(new Point(rect.Left+1+title.Length, rect.Top), new Point(rect.Right-2, rect.Top), pattern[4]);
+            DrawLine(new Point(rect.Right-1, rect.Top+1   ), new Point(rect.Right-1, rect.Bottom-2), pattern[5]);
+            DrawLine(new Point(rect.Right-2, rect.Bottom-1), new Point(rect.Left+1,  rect.Bottom-1), pattern[6]);
+            DrawLine(new Point(rect.Left,    rect.Bottom-2), new Point(rect.Left,    rect.Top+1   ), pattern[7]);
         }
 
         public void FillRectangle(Rectangle rect, char ch)
