@@ -105,9 +105,14 @@ namespace Conwid.Core
             DrawPatternLine(from, to, ch.ToString());
         }
 
-        public void PutString(Point from, string str)
+        public void PutString(Point from, string str, int maxLength = 0)
         {
-            DrawPatternLine(from, from + new Size(str.Length-1,0), str);
+            string cutStr;
+            if( maxLength != 0 && str.Length > maxLength)
+                cutStr = str.Substring(0, maxLength-1) + "~";
+            else
+                cutStr = str;
+            DrawPatternLine(from, from + new Size(cutStr.Length-1,0), cutStr);
         }
 
         public void DrawRectangle(Rectangle rect, char ch)

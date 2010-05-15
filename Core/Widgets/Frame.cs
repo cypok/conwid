@@ -40,18 +40,19 @@ namespace Conwid.Core.Widgets
 
             var rect = new Rectangle(Point.Empty, Size);
             
-            var maxTitleLength = rect.Width - 2;
-            var title = Title;
-            if( Title.Length > maxTitleLength )
-                title = Title.Substring(0, maxTitleLength-1) + "~";
-            ds.PutString(new Point(rect.Left+1, rect.Top), title);
-
+            // corners
             ds.PutCharacter(new Point(rect.Left,    rect.Top     ), '╔');
             ds.PutCharacter(new Point(rect.Right-1, rect.Top     ), '╗');
             ds.PutCharacter(new Point(rect.Right-1, rect.Bottom-1), '╝');
             ds.PutCharacter(new Point(rect.Left,    rect.Bottom-1), '╚');
-            if( title.Length < maxTitleLength )
-                ds.DrawLine(new Point(rect.Left+1+title.Length,  rect.Top), new Point(rect.Right-2, rect.Top     ), '═');
+
+            // title
+            var maxTitleLength = rect.Width - 2;
+            ds.PutString(new Point(rect.Left+1, rect.Top), Title, maxTitleLength);
+
+            // borders
+            if( Title.Length < maxTitleLength )
+                ds.DrawLine(new Point(rect.Left+1+Title.Length, rect.Top), new Point(rect.Right-2, rect.Top), '═');
             ds.DrawLine(new Point(rect.Right-1, rect.Top+1   ), new Point(rect.Right-1, rect.Bottom-2), '║');
             ds.DrawLine(new Point(rect.Right-2, rect.Bottom-1), new Point(rect.Left+1,  rect.Bottom-1), '═');
             ds.DrawLine(new Point(rect.Left,    rect.Bottom-2), new Point(rect.Left,    rect.Top+1   ), '║');
