@@ -73,8 +73,8 @@ namespace Conwid.Core.Widgets
                 else if( IsValidForInput(keyInfo.Key) )
                 {
                     Text += keyChar;
-                    if( TextRolling < (Text.Length - Area.Width) )
-                        TextRolling++;
+                    if( TextRolling < (Text.Length - Area.Width + 1) )
+                        TextRolling = Text.Length - Area.Width + 1;
                 }
                 WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
             }
@@ -86,6 +86,8 @@ namespace Conwid.Core.Widgets
             ds.Color = IsActive() ? ActiveLineEditColor : InactiveLineEditColor;
 
             var outText = Text.Substring( TextRolling, Math.Min(Area.Width, Text.Length-TextRolling) );
+            if( IsActive() && outText.Length < Area.Width )
+                outText += "_";
             outText = outText.PadRight(Area.Width);
 
             ds.PutString(Point.Empty, outText, Area.Width);
