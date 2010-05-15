@@ -13,9 +13,9 @@ namespace Demo
         {
             var widgets = new Widget[]
             {
-                new Frame( new Rectangle(3,3,10,5) ),
-                new Frame( new Rectangle(5,5,10,5) ),
-                new Frame( new Rectangle(7,6,10,5) ),
+                new Frame( new Rectangle(3,3,30,10), "First" ),
+                new Frame( new Rectangle(8,5,30,10) ),
+                new Frame( new Rectangle(13,6,30,10), "With really long long long name" ),
             };
 
             foreach (var w in widgets)

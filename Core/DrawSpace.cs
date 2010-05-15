@@ -76,6 +76,8 @@ namespace Conwid.Core
         {
             if( pattern == null )
                 throw new ArgumentNullException();
+            if( pattern.Length == 0 )
+                return;
 
             Func<int, Size> intToSize;
             int diff;
