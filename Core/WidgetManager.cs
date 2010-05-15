@@ -25,6 +25,9 @@ namespace Conwid.Core
 
         #endregion //Singleton implementation
         
+        readonly ConsoleKeyInfo NextWidgetKeyInfo =     new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: false, alt: false);
+        readonly ConsoleKeyInfo PreviousWidgetKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: true, alt: false);
+        
         private List<Widget> widgets = new List<Widget>();
 
         private IEnumerable<Widget> LowerWidgets(Widget w)
@@ -35,12 +38,17 @@ namespace Conwid.Core
         {
             return widgets.FindAll(x => widgets.IndexOf(x) < widgets.IndexOf(w));
         }
+        private Widget ActiveWidget
+        {
+            get { return widgets.FirstOrDefault(); }
+        }
         
         // Handles:
         // * AddWidgetMessage
         // * RemoveWidgetMessage
         // * RedrawWidgetMessage
         // * SwitchWidgetMessage
+        // * KeyPressedMessage
         public void Handle(IMessage msg)
         {
             if(msg is WidgetManipulationMessage)
@@ -65,16 +73,43 @@ namespace Conwid.Core
                     w.Draw( new DrawSpace(w.Area, UpperWidgets(w).Select(x => x.Area)) );
                 }
             }
-            else if (msg is SwitchWidgetMessage)
+            else if(msg is KeyPressedMessage)
             {
-                var top = widgets[0];
-                widgets.RemoveAt(0);
-                widgets.Add(top); // move top window to bottom
-                foreach (var w in widgets)
+                var keyInfo = (msg as KeyPressedMessage).KeyInfo;
+
+                if(keyInfo.IsEqualTo(NextWidgetKeyInfo))
                 {
-                    Console.Clear(); //TODO: oh oh oh!
-                    this.PostMessage( new RedrawWidgetMessage(w) );
+                    this.SendMessage(new SwitchWidgetMessage(next: true));
                 }
+                else if(keyInfo.IsEqualTo(PreviousWidgetKeyInfo))
+                {
+                    this.SendMessage(new SwitchWidgetMessage(next: false));
+                }
+                else if(ActiveWidget != null)
+                {
+                    ActiveWidget.SendMessage(msg);
+                }
+                // else unhandled key :(
+            }
+            else if (msg is SwitchWidgetMessage && !widgets.IsEmpty())
+            {
+                if((msg as SwitchWidgetMessage).Next)
+                {
+                    widgets.MoveToEnding(0);
+                    
+                    // cypok
+                    //widgets.ForEach( w => this.PostMessage(new RedrawWidgetMessage(w)) );
+
+                    // NIA
+                    foreach (var w in widgets)
+                        this.PostMessage( new RedrawWidgetMessage(w) );
+                }
+                else
+                {
+                    widgets.MoveToBeginning(widgets.Count - 1);
+                    this.PostMessage( new RedrawWidgetMessage(widgets.First()) );
+                }
+
             }
         }
 

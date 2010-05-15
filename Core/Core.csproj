@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="ConsoleKeyExtensions.cs" />
     <Compile Include="DrawSpace.cs" />
+    <Compile Include="ListExtensions.cs" />
     <Compile Include="MessageLoop.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="IMessage.cs" />

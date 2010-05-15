@@ -30,9 +30,13 @@ namespace Conwid.Core.Messages
 
     public sealed class KeyPressedMessage : SystemMessage
     {
-        public ConsoleKey Key { get; private set; }
-        public KeyPressedMessage(ConsoleKey k) { Key = k; }
+        public ConsoleKeyInfo KeyInfo { get; private set; }
+        public KeyPressedMessage(ConsoleKeyInfo ki) { KeyInfo = ki; }
     }
 
-    public sealed class SwitchWidgetMessage : SystemMessage {}
+    public sealed class SwitchWidgetMessage : SystemMessage
+    {
+        public bool Next { get; private set; }
+        public SwitchWidgetMessage(bool next = true) { Next = next; }
+    }
 }

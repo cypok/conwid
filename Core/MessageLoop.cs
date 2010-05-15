@@ -34,6 +34,8 @@ namespace Conwid.Core
             
         #endregion //Singleton implementation
 
+        readonly ConsoleKeyInfo ExitKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Q, control: true, shift: false, alt: false);
+
         Queue<MesssageContainer> queue = new Queue<MesssageContainer>();
         bool stopped;
         int retcode;
@@ -53,7 +55,8 @@ namespace Conwid.Core
 
             receiver.Handle(msg);
         }
-            
+
+        
         // Handles:
         // * QuitMessage
         // * KeyPressedMessage
@@ -64,18 +67,14 @@ namespace Conwid.Core
                 stopped = true;
                 retcode = (msg as QuitMessage).Code;
             }
-            else if (msg is KeyPressedMessage)
+            else if(msg is KeyPressedMessage)
             {
-                var key = (msg as KeyPressedMessage).Key;
-                switch(key)
-                {
-                    case ConsoleKey.Tab:
-                        WidgetManager.Instance.PostMessage(new SwitchWidgetMessage());
-                        break;
-                    case ConsoleKey.Escape:
-                        this.PostMessage(new QuitMessage());
-                        break;
-                }
+                var keyInfo = (msg as KeyPressedMessage).KeyInfo;
+                if( keyInfo.IsEqualTo(ExitKeyInfo) )
+                    this.PostMessage(new QuitMessage());
+                else
+                    WidgetManager.Instance.SendMessage(msg);
+
             }
         }
 
@@ -86,13 +85,9 @@ namespace Conwid.Core
             do
             {
                 if(Console.KeyAvailable)
-                {
-                    var ki = Console.ReadKey();
-                    var k = ki.Key;
-                    SendMessage(this, new KeyPressedMessage(k));
-                }
+                    SendMessage(this, new KeyPressedMessage( Console.ReadKey(intercept: true) ));
 
-                if(queue.Count == 0)
+                if(queue.IsEmpty())
                     continue;
 
                 var mc = queue.Dequeue();
