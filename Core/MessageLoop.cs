@@ -56,12 +56,26 @@ namespace Conwid.Core
             
         // Handles:
         // * QuitMessage
+        // * KeyPressedMessage
         public void Handle(IMessage msg)
         {
             if(msg is QuitMessage)
             {
                 stopped = true;
                 retcode = (msg as QuitMessage).Code;
+            }
+            else if (msg is KeyPressedMessage)
+            {
+                var key = (msg as KeyPressedMessage).Key;
+                switch(key)
+                {
+                    case ConsoleKey.Tab:
+                        WidgetManager.Instance.PostMessage(new SwitchWidgetMessage());
+                        break;
+                    case ConsoleKey.Escape:
+                        this.PostMessage(new QuitMessage());
+                        break;
+                }
             }
         }
 
@@ -71,6 +85,13 @@ namespace Conwid.Core
 
             do
             {
+                if(Console.KeyAvailable)
+                {
+                    var ki = Console.ReadKey();
+                    var k = ki.Key;
+                    SendMessage(this, new KeyPressedMessage(k));
+                }
+
                 if(queue.Count == 0)
                     continue;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 
 namespace Conwid.Core
 {
@@ -25,15 +26,27 @@ namespace Conwid.Core
         #endregion //Singleton implementation
         
         private List<Widget> widgets = new List<Widget>();
+
+        private IEnumerable<Widget> LowerWidgets(Widget w)
+        {
+            return widgets.FindAll(x => widgets.IndexOf(x) > widgets.IndexOf(w));
+        }
+        private IEnumerable<Widget> UpperWidgets(Widget w)
+        {
+            return widgets.FindAll(x => widgets.IndexOf(x) < widgets.IndexOf(w));
+        }
         
         // Handles:
         // * AddWidgetMessage
         // * RemoveWidgetMessage
+        // * RedrawWidgetMessage
+        // * SwitchWidgetMessage
         public void Handle(IMessage msg)
         {
             if(msg is WidgetManipulationMessage)
             {
                 var w = (msg as WidgetManipulationMessage).Widget;
+                
                 
                 if(msg is AddWidgetMessage)
                 {
@@ -49,8 +62,18 @@ namespace Conwid.Core
                 {
                     if(!widgets.Contains(w))
                         throw new InvalidOperationException("Widget not added to WidgetManager being redrawed");
-                    w.Draw( new DrawSpace(w.Area,
-                        widgets.FindAll(x => widgets.IndexOf(x) < widgets.IndexOf(w)).Select(x => x.Area)) );
+                    w.Draw( new DrawSpace(w.Area, UpperWidgets(w).Select(x => x.Area)) );
+                }
+            }
+            else if (msg is SwitchWidgetMessage)
+            {
+                var top = widgets[0];
+                widgets.RemoveAt(0);
+                widgets.Add(top); // move top window to bottom
+                foreach (var w in widgets)
+                {
+                    Console.Clear(); //TODO: oh oh oh!
+                    this.PostMessage( new RedrawWidgetMessage(w) );
                 }
             }
         }

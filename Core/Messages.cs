@@ -27,4 +27,12 @@ namespace Conwid.Core.Messages
     {
         public RedrawWidgetMessage(Widget w) : base(w) {}
     }
+
+    public sealed class KeyPressedMessage : SystemMessage
+    {
+        public ConsoleKey Key { get; private set; }
+        public KeyPressedMessage(ConsoleKey k) { Key = k; }
+    }
+
+    public sealed class SwitchWidgetMessage : SystemMessage {}
 }

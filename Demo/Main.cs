@@ -22,7 +22,7 @@ namespace Demo
             foreach (var w in widgets)
                 WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(w));
 
-            MessageLoop.Instance.PostMessage(new QuitMessage());
+            //MessageLoop.Instance.PostMessage(new QuitMessage());
             
             MessageLoop.Instance.Run();
 
