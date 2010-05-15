@@ -6,6 +6,12 @@ using System.Drawing;
 
 namespace Conwid.Core
 {
+    public class Color
+    {
+        public ConsoleColor Foreground { get; set; }
+        public ConsoleColor Background { get; set; }
+    }
+
     public sealed class DrawSpace
     {
         #region Fields & Properties
@@ -33,6 +39,24 @@ namespace Conwid.Core
 
         #endregion Constructors
 
+        #region Colors
+
+        public Color Color { get; set; }
+
+        public ConsoleColor ForegroundColor
+        {
+            get { return Color.Foreground; }
+            set { Color.Foreground = value; }
+        }
+
+        public ConsoleColor BackgroundColor
+        {
+            get { return Color.Background; }
+            set { Color.Background = value; }
+        }
+
+        #endregion Colors
+
         #region Drawing Methods
 
         public void PutCharacter(Point point, char ch)
@@ -41,6 +65,8 @@ namespace Conwid.Core
             if( allowedRect.Contains(point) && deniedRects.All( x => ! x.Contains(point) ) )
             {
                 Console.SetCursorPosition(point.X, point.Y);
+                Console.ForegroundColor = Color.Foreground;
+                Console.BackgroundColor = Color.Background;
                 Console.Write(ch);
                 Console.SetCursorPosition(0, 0);
             }

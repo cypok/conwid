@@ -23,6 +23,8 @@ namespace Demo
             foreach (var w in widgets)
                 WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(w));
 
+            Console.CursorVisible = false;
+
             //MessageLoop.Instance.PostMessage(new QuitMessage());
             
             MessageLoop.Instance.Run();

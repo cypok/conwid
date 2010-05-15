@@ -10,6 +10,11 @@ namespace Conwid.Core
     {
         // TODO: setter notifying WidgetManager about resizing
         public Rectangle Area { get; protected set; }
+        public Size Size
+        {
+            get { return Area.Size; }
+            protected set { Area = new Rectangle(Area.Location, value); }
+        }
 
         public Widget(Rectangle area)
         {
@@ -17,6 +22,12 @@ namespace Conwid.Core
                 throw new ArgumentNullException();
 
             Area = area;
+        }
+
+        public bool IsActive()
+        {
+            // TODO: ask parent
+            return WidgetManager.Instance.ActiveWidget == this;
         }
 
         abstract public void Handle(IMessage msg);

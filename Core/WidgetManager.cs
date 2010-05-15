@@ -38,7 +38,7 @@ namespace Conwid.Core
         {
             return widgets.FindAll(x => widgets.IndexOf(x) < widgets.IndexOf(w));
         }
-        private Widget ActiveWidget
+        public Widget ActiveWidget
         {
             get { return widgets.FirstOrDefault(); }
         }
@@ -94,21 +94,16 @@ namespace Conwid.Core
             else if (msg is SwitchWidgetMessage && !widgets.IsEmpty())
             {
                 if((msg as SwitchWidgetMessage).Next)
-                {
                     widgets.MoveToEnding(0);
-                    
-                    // cypok
-                    //widgets.ForEach( w => this.PostMessage(new RedrawWidgetMessage(w)) );
-
-                    // NIA
-                    foreach (var w in widgets)
-                        this.PostMessage( new RedrawWidgetMessage(w) );
-                }
                 else
-                {
                     widgets.MoveToBeginning(widgets.Count - 1);
-                    this.PostMessage( new RedrawWidgetMessage(widgets.First()) );
-                }
+
+                // cypok
+                //widgets.ForEach( w => this.PostMessage(new RedrawWidgetMessage(w)) );
+
+                // NIA
+                foreach (var w in widgets)
+                    this.PostMessage( new RedrawWidgetMessage(w) );
 
             }
         }

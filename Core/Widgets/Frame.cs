@@ -8,7 +8,18 @@ namespace Conwid.Core.Widgets
 {
     public class Frame : Widget
     {
-        public Frame(Rectangle pos) : base(pos) {}
+        readonly Color ActiveFrameColor = new Color()
+        {
+            Foreground = ConsoleColor.White,
+            Background = ConsoleColor.Black
+        };
+        readonly Color InactiveFrameColor = new Color()
+        {
+            Foreground = ConsoleColor.Gray,
+            Background = ConsoleColor.Black
+        };
+
+        public Frame(Rectangle area) : base(area) {}
 
         public override void Handle(IMessage msg)
         {
@@ -17,9 +28,10 @@ namespace Conwid.Core.Widgets
 
         public override void Draw(DrawSpace ds)
         {
-            ds.DrawRectangle(new Rectangle(Point.Empty, ds.Size), '+');
-            ds.FillRectangle(new Rectangle(new Point(1,1),
-                    new Size(ds.Size.Width - 2, ds.Size.Height - 2)), ' ');
+            ds.Color = IsActive() ? ActiveFrameColor : InactiveFrameColor;
+
+            ds.DrawRectangle(new Rectangle(Point.Empty, Size), '+');
+            ds.FillRectangle(new Rectangle(new Point(1,1), Size - new Size(2,2)), ' ');
         }
     }
 }
