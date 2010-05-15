@@ -16,6 +16,9 @@ namespace Demo
                 new Frame( new Rectangle(3,3,30,10), "First" ),
                 new Frame( new Rectangle(8,5,30,10) ),
                 new Frame( new Rectangle(13,6,30,10), "With really long long long name" ),
+                new LineEdit( new Point(2,1), 15, "Hello, World!"),
+                new LineEdit( new Point(20,2), 15, ""),
+                new LineEdit( new Point(15,0), 4, "0123456789"),
             };
 
             foreach (var w in widgets)
