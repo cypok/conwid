@@ -7,35 +7,33 @@ using Conwid.Core.Widgets;
 
 namespace Demo
 {
+    using WidgetGroup = UIManager<Widget>; // it's not a typedef, it's defined only in current file. But it's a bit better :)
+
     class MainClass
     {
         public static void Main (string[] args)
         {
             var theLoop = MessageLoop.Instance;
 
+            var widGroups = new WidgetGroup[]
+            {
+                new WidgetGroup(theLoop.WidgetManager, new Rectangle(3,3,30,10), "First"),
+                new WidgetGroup(theLoop.WidgetManager, new Rectangle(8,5,30,10)),
+                new WidgetGroup(theLoop.WidgetManager, new Rectangle(13,6,30,10), "With really long long long name"),
+            };
+            
             var widgets = new Widget[]
             {
-                new Frame( new Rectangle(3,3,30,10), "First" ),
-                new Frame( new Rectangle(8,5,30,10) ),
-                new Frame( new Rectangle(13,6,30,10), "With really long long long name" ),
-                new LineEdit( new Point(2,1), 15, "Hello, World!"),
-                new LineEdit( new Point(20,2), 15, ""),
-                new LineEdit( new Point(15,0), 4, "0123456789"),
-                new CheckBox( new Point(3,20), "nsu student"),
-                new CheckBox( new Point(3,21), "love to DaftPunk", width: 14),
-                new CheckBox( new Point(3,22), "love to Ruby", value: true),
+                new LineEdit( new Point(1,1), 17, "Hello, World!") { Parent = widGroups[0] },
+                new LineEdit( new Point(1,3), 15, "") { Parent = widGroups[0] },
+                new LineEdit( new Point(10,4), 4, "0123456789") { Parent = widGroups[1] },
+                new CheckBox( new Point(3,1), "nsu student") { Parent = widGroups[2] },
+                new CheckBox( new Point(3,3), "love to DaftPunk", width: 14) { Parent = widGroups[2] },
+                new CheckBox( new Point(3,5), "love to Ruby", value: true) { Parent = widGroups[2] },
             };
-
-            foreach (var w in widgets)
-                w.Parent = theLoop.WidgetManager;
-            
-            //foreach (var w in widgets)
-            //    WidgetManager.Instance.PostMessage(new RedrawUIElementMessage(w));
 
             Console.CursorVisible = false;
 
-            //MessageLoop.Instance.PostMessage(new QuitMessage());
-            
             theLoop.Run();
 
             Console.WriteLine( theLoop.WidgetManager.DebugDump() );

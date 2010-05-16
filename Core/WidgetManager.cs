@@ -14,46 +14,28 @@ namespace Conwid.Core
     public sealed class UIManager<Child> : IUIElement
         where Child : IUIElement
     {
-        static IUIElement topLevelManager;
+        #region Constants
 
-        readonly ConsoleKeyInfo NextWidgetKeyInfo =     new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: false, alt: false);
-        readonly ConsoleKeyInfo PreviousWidgetKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: true, alt: false);
+        public static readonly ConsoleKeyInfo TopLevelNextElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo TopLevelPrevElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: true, alt: false);
+
+        public static readonly ConsoleKeyInfo NormalNextElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo NormalPrevElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: true, alt: false);
+
+        #endregion // Constants
 
         #region Fields and Properties
 
-        private List<Child> children = new List<Child>();
-
         public Widget BackgroundWidget { get; private set; }
-        public Rectangle Area { get { return BackgroundWidget.Area; } }
-
+        
+        private List<Child> children = new List<Child>();
         UIManager<UIManager<Child>> parent;
-        public IUIElement Parent
-        {
-            get { return parent; }
-            set
-            {
-                // copypaste from Widget, but how to do it otherwise? :(
-                if (value is UIManager<UIManager<Child>>)
-                {
-                    var newParent = value as UIManager<UIManager<Child>>;
 
-                    if (newParent == parent) // nothing changed
-                        return;
+        private static IUIElement topLevelManager; // used to avoid creation of more than one top-level UIManager
 
-                    // remove itself from previous parent
-                    if (parent != null)
-                        parent.SendMessage(new RemoveUIElementMessage<UIManager<Child>>(this));
-
-                    parent = newParent;
-                    parent.SendMessage(new AddUIElementMessage<UIManager<Child>>(this));
-                }
-                else
-                {
-                    throw new InvalidCastException("Only UIManager<UIManager<Element>> can be a parent of a UIManager<Element>");
-                }
-            }
-        }
-
+        private ConsoleKeyInfo nextElementKeyInfo;
+        private ConsoleKeyInfo prevElementKeyInfo;
+        
         #endregion // Fields and Properties
 
         #region Constructors
@@ -61,7 +43,7 @@ namespace Conwid.Core
         /// <summary>
         /// Creates top-level UIManager
         /// </summary>
-        internal UIManager()
+        internal UIManager(ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
         {
             if (topLevelManager != null)
                 throw new InvalidOperationException("Only one top-level UIManager allowed");
@@ -71,21 +53,29 @@ namespace Conwid.Core
             var screenArea = new Rectangle(Point.Empty, DrawSpace.Screen.Size);
             BackgroundWidget = new EmptyArea(screenArea);
 
+            nextElementKeyInfo = nextElemKeyInfo ?? TopLevelNextElementKeyInfo;
+            prevElementKeyInfo = prevElemKeyInfo ?? TopLevelPrevElementKeyInfo;
         }
 
         /// <summary>
         /// Creates non-top-level UIManager
         /// </summary>
-        public UIManager(Rectangle area, string title, UIManager<UIManager<Child>> parent_)
+        public UIManager(UIManager<UIManager<Child>> parent_, Rectangle area, string title="",
+                         ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
         {
             if (parent_ == null)
                 throw new ArgumentNullException("parent_");
 
             BackgroundWidget = new Frame(area, title);
             Parent = parent_;
+
+            nextElementKeyInfo = nextElemKeyInfo ?? NormalNextElementKeyInfo;
+            prevElementKeyInfo = prevElemKeyInfo ?? NormalPrevElementKeyInfo;
         }
 
         #endregion // Constructors
+
+        #region Collection Helpers
 
         private IEnumerable<Child> LowerElements(Child c)
         {
@@ -99,7 +89,11 @@ namespace Conwid.Core
         {
             get { return children.FirstOrDefault(); }
         }
-        
+
+        #endregion // Collection Helpers
+
+        #region Message Handling (Main functionality here)
+
         // Handles:
         // * AddUIElementMessage<Element>
         // * RemoveUIElementMessage<Element>
@@ -145,11 +139,11 @@ namespace Conwid.Core
             {
                 var keyInfo = (msg as KeyPressedMessage).KeyInfo;
 
-                if(keyInfo.IsEqualTo(NextWidgetKeyInfo))
+                if(keyInfo.IsEqualTo(nextElementKeyInfo))
                 {
                     this.SendMessage(new SwitchUIElementMessage(next: true));
                 }
-                else if(keyInfo.IsEqualTo(PreviousWidgetKeyInfo))
+                else if(keyInfo.IsEqualTo(prevElementKeyInfo))
                 {
                     this.SendMessage(new SwitchUIElementMessage(next: false));
                 }
@@ -178,6 +172,42 @@ namespace Conwid.Core
             }
         }
 
+        #endregion // Message Handling
+
+        #region IUIElement Properties & Methods
+        
+        public IUIElement Parent
+        {
+            get { return parent; }
+            set
+            {
+                // copypaste from Widget, but how to do it otherwise? :(
+                if (value is UIManager<UIManager<Child>>)
+                {
+                    var newParent = value as UIManager<UIManager<Child>>;
+
+                    if(newParent == null)
+                        throw new ArgumentNullException();
+
+                    if(newParent == parent) // nothing changed
+                        return;
+
+                    // remove itself from previous parent
+                    if (parent != null)
+                        parent.SendMessage(new RemoveUIElementMessage<UIManager<Child>>(this));
+
+                    parent = newParent;
+                    parent.SendMessage(new AddUIElementMessage<UIManager<Child>>(this));
+                }
+                else
+                {
+                    throw new InvalidCastException("Only UIManager<UIManager<Element>> can be a parent of a UIManager<Element>");
+                }
+            }
+        }
+       
+        public Rectangle Area { get { return BackgroundWidget.Area; } }
+        
         private void DrawChild(Child c, DrawSpace ds)
         {
             if(!children.Contains(c))
@@ -187,10 +217,11 @@ namespace Conwid.Core
 
         public void Draw(DrawSpace ds)
         {
+            // TODO: how to tell the Frame with no parent whether it active or not???
             BackgroundWidget.Draw(ds);
             // TODO: required rect should be transferred to children somewhere near here
-            foreach(var e in children)
-                DrawChild(e, ds);
+            foreach(var c in children)
+                DrawChild(c, ds);
         }
 
         public void Invalidate()
@@ -201,6 +232,11 @@ namespace Conwid.Core
                 this.PostMessage(new GlobalRedrawMessage());
         }
 
+
+        #endregion // IUIElement Properties & Methods
+
+        #region Debug Methods
+
         public string DebugDump()
         {
             var s = "";
@@ -210,5 +246,7 @@ namespace Conwid.Core
             s += String.Join("\n", strings);
             return s;
         }
+
+        #endregion // Debug Methods
     }
 }

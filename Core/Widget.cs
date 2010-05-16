@@ -27,6 +27,8 @@ namespace Conwid.Core
 
         public bool IsActive()
         {
+            if(parent == null)
+                return false;
             return parent.ActiveElement == this;
         }
 
@@ -51,7 +53,8 @@ namespace Conwid.Core
                         parent.SendMessage( new RemoveUIElementMessage<Widget>(this) );
                 
                     parent = newParent;
-                    parent.SendMessage( new AddUIElementMessage<Widget>(this) );
+                    if(parent != null)
+                        parent.SendMessage( new AddUIElementMessage<Widget>(this) );
                 }
                 else
                 {

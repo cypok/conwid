@@ -41,12 +41,11 @@ namespace Conwid.Core
         readonly ConsoleKeyInfo ExitKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Q, control: true, shift: false, alt: false);
 
         Queue<MesssageContainer> queue = new Queue<MesssageContainer>();
-        // TODO: UIManager<UIManager<Widget>>
-        UIManager<Widget> widgetManager = new UIManager<Widget>();
+        UIManager<UIManager<Widget>> widgetManager = new UIManager<UIManager<Widget>>();
         bool stopped;
         int retcode;
 
-        public UIManager<Widget> WidgetManager{ get { return widgetManager; } }
+        public UIManager<UIManager<Widget>> WidgetManager{ get { return widgetManager; } }
 
         public void PostMessage(IMessageHandler receiver, IMessage msg)
         {

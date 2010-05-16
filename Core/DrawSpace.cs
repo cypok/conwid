@@ -23,6 +23,7 @@ namespace Conwid.Core
 
         #region Fields & Properties
 
+        private Point referencePoint;
         private Rectangle allowedRect;
         private IEnumerable<Rectangle> deniedRects;
 
@@ -35,13 +36,14 @@ namespace Conwid.Core
             
         #region Constructors
             
-        public DrawSpace(Rectangle allowed, IEnumerable<Rectangle> denied = null)
+        public DrawSpace(Rectangle allowed, IEnumerable<Rectangle> denied = null, Point? refPoint = null)
         {
             if(allowed == null)
                 throw new ArgumentNullException();
 
             allowedRect = allowed;
-            deniedRects = denied != null ? denied : new Rectangle[0];
+            deniedRects = denied ?? new Rectangle[0];
+            referencePoint = refPoint ?? allowedRect.Location;
         }
 
         #endregion //Constructors
@@ -57,8 +59,10 @@ namespace Conwid.Core
 
         public DrawSpace CreateSubSpace(Rectangle allowed, IEnumerable<Rectangle> denied = null)
         {
+            allowed.Offset( this.referencePoint );
+            var refPoint = allowed.Location;
             allowed.Intersect( allowedRect );
-            return new DrawSpace( allowed, deniedRects.Concat(denied) );
+            return new DrawSpace( allowed, deniedRects.Concat(denied), refPoint );
         }
         
         #region Creating Helpers
@@ -86,7 +90,7 @@ namespace Conwid.Core
 
         public void PutCharacter(Point point, char ch)
         {
-            point.Offset( allowedRect.Location );
+            point.Offset( referencePoint );
             if( allowedRect.Contains(point) && deniedRects.All( x => ! x.Contains(point) ) )
             {
                 Console.SetCursorPosition(point.X, point.Y);
