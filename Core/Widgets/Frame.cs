@@ -21,17 +21,17 @@ namespace Conwid.Core.Widgets
             Background = ConsoleColor.Black
         };
 
-        #endregion Constants
+        #endregion //Constants
         
         #region Fields & Properties
 
         public string Title { get; private set; }
 
-        #endregion Fields & Properties
+        #endregion //Fields & Properties
         
         #region Events
 
-        #endregion Events
+        #endregion //Events
 
         public Frame(Rectangle area, string title = "") : base(area)
         {

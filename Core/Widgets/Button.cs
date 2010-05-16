@@ -35,19 +35,19 @@ namespace Conwid.Core.Widgets
             Background = ConsoleColor.Black
         };
 
-        #endregion Constants
+        #endregion //Constants
 
         #region Fields & Properties
 
         public string Text{ get; private set; }
 
-        #endregion Fields & Properties
+        #endregion //Fields & Properties
         
         #region Events
 
         public event ChangesHandler OnPressed;
 
-        #endregion Events
+        #endregion //Events
 
         public Button(Point pos, string text, int height = 3, int width = 0) :
             base(new Rectangle(pos, new Size( (width == 0) ? 2+text.Length : width, height)))

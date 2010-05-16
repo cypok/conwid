@@ -37,18 +37,18 @@ namespace Conwid.Core.Widgets
             Background = ConsoleColor.Black
         };
 
-        #endregion Constants
+        #endregion //Constants
         
         #region Fields & Properties
 
         public string Text{ get; private set; }
         public bool Value { get; private set; }
 
-        #endregion Fields & Properties
+        #endregion //Fields & Properties
         
         #region Events
 
-        #endregion Events
+        #endregion //Events
 
         public CheckBox(Point pos, string text, bool value = false, int width = 0) :
             base(new Rectangle(pos, new Size( (width == 0) ? 2+text.Length : width, 1)))
