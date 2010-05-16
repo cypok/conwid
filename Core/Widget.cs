@@ -22,6 +22,8 @@ namespace Conwid.Core
 
         #region Events
         
+        public delegate void ChangesHandler(Widget w);
+
         #endregion Events
 
         public Widget(Rectangle area)
