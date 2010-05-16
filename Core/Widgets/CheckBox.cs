@@ -76,8 +76,8 @@ namespace Conwid.Core.Widgets
 
         #endregion // Events
 
-        public CheckBox(Point pos, string text, bool state = false, int width = 0) :
-            base(new Rectangle(pos, new Size( (width == 0) ? 2+text.Length : width, 1)))
+        public CheckBox(Point pos, string text, bool state = false, int? width = null) :
+            base(new Rectangle(pos, new Size( width ?? 2+text.Length, 1)))
         {
             this.text = text;
             this.state = state;

@@ -59,8 +59,8 @@ namespace Conwid.Core.Widgets
 
         #endregion // Events
 
-        public Button(Point pos, string text, int height = 3, int width = 0) :
-            base(new Rectangle(pos, new Size( (width == 0) ? 2+text.Length : width, height)))
+        public Button(Point pos, string text, int height = 3, int? width = null) :
+            base(new Rectangle(pos, new Size( width ?? 2+text.Length, height)))
         {
             if( height == 2 )
                 throw new ArgumentException("Height could not be equal to 2");

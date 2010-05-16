@@ -139,8 +139,7 @@ namespace Conwid.Core
             PutCharacter(new Point(rect.Left,    rect.Bottom-1), pattern[3]);
 
             // title
-            if(title == null)
-                title = "";
+            title = title ?? "";
 
             var maxTitleLength = rect.Width - 2;
             PutString(new Point(rect.Left+1, rect.Top), title, maxTitleLength);

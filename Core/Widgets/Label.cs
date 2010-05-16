@@ -44,8 +44,8 @@ namespace Conwid.Core.Widgets
 
         #endregion // Events
 
-        public Label(Point pos, string text, int width = 0) :
-            base(new Rectangle(pos, new Size( (width == 0) ? 2+text.Length : width, 1)))
+        public Label(Point pos, string text, int? width = null) :
+            base(new Rectangle(pos, new Size( width ?? 2+text.Length, 1)))
         {
             this.text = text;
         }
