@@ -9,34 +9,39 @@ namespace Conwid.Core.Messages
         public int Code { get; private set; }
         public QuitMessage(int code = 0) { Code = code; }
     }
+    public sealed class SetTitleMessage : SystemMessage
+    {
+        public string Title { get; private set; }
+        public SetTitleMessage(string title) { Title = title; }
+    }
 
-    public class WidgetManipulationMessage : SystemMessage
+    internal class UIElementMessage<Element> : SystemMessage  where Element : IUIElement
     {
-        public Widget Widget { get; private set; }
-        public WidgetManipulationMessage(Widget w) { Widget = w; }
+        public Element UIElement { get; private set; }
+        public UIElementMessage(Element e) { UIElement = e; }
     }
-    public sealed class AddWidgetMessage : WidgetManipulationMessage
+    internal sealed class AddUIElementMessage<Element> : UIElementMessage<Element>  where Element : IUIElement
     {
-        public AddWidgetMessage(Widget w) : base(w) {}
+        public AddUIElementMessage(Element e) : base(e) {}
     }
-    public sealed class RemoveWidgetMessage : WidgetManipulationMessage
+    internal sealed class RemoveUIElementMessage<Element> : UIElementMessage<Element>  where Element : IUIElement
     {
-        public RemoveWidgetMessage(Widget w) : base(w) {}
+        public RemoveUIElementMessage(Element e) : base(e) {}
     }
-    public sealed class RedrawWidgetMessage : WidgetManipulationMessage
+    internal sealed class RedrawUIElementMessage<Element> : UIElementMessage<Element>  where Element : IUIElement
     {
-        public RedrawWidgetMessage(Widget w) : base(w) {}
+        public RedrawUIElementMessage(Element e) : base(e) {}
+    }
+    internal sealed class GlobalRedrawMessage : SystemMessage {}
+    internal sealed class SwitchUIElementMessage : SystemMessage
+    {
+        public bool Next { get; private set; }
+        public SwitchUIElementMessage(bool next = true) { Next = next; }
     }
 
     public sealed class KeyPressedMessage : SystemMessage
     {
         public ConsoleKeyInfo KeyInfo { get; private set; }
         public KeyPressedMessage(ConsoleKeyInfo ki) { KeyInfo = ki; }
-    }
-
-    public sealed class SwitchWidgetMessage : SystemMessage
-    {
-        public bool Next { get; private set; }
-        public SwitchWidgetMessage(bool next = true) { Next = next; }
     }
 }

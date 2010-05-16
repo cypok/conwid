@@ -58,7 +58,7 @@ namespace Conwid.Core.Widgets
                 {
                     Value = !Value;
                 }
-                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                Invalidate();
             }
             return;
         }

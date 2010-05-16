@@ -11,6 +11,8 @@ namespace Demo
     {
         public static void Main (string[] args)
         {
+            var theLoop = MessageLoop.Instance;
+
             var widgets = new Widget[]
             {
                 new Frame( new Rectangle(3,3,30,10), "First" ),
@@ -25,17 +27,18 @@ namespace Demo
             };
 
             foreach (var w in widgets)
-                WidgetManager.Instance.PostMessage(new AddWidgetMessage(w));
-            foreach (var w in widgets)
-                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(w));
+                w.Parent = theLoop.WidgetManager;
+            
+            //foreach (var w in widgets)
+            //    WidgetManager.Instance.PostMessage(new RedrawUIElementMessage(w));
 
             Console.CursorVisible = false;
 
             //MessageLoop.Instance.PostMessage(new QuitMessage());
             
-            MessageLoop.Instance.Run();
+            theLoop.Run();
 
-            Console.WriteLine( WidgetManager.Instance.DebugDump() );
+            Console.WriteLine( theLoop.WidgetManager.DebugDump() );
         }
     }
 }

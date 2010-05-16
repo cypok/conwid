@@ -31,19 +31,27 @@ namespace Conwid.Core
         {
             get { return instance; }
         }
+
+        // Don't create instances of this class directly.
+        // Use MessageLoop.Instance instead.
+        private MessageLoop() { }
             
         #endregion //Singleton implementation
 
         readonly ConsoleKeyInfo ExitKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Q, control: true, shift: false, alt: false);
 
         Queue<MesssageContainer> queue = new Queue<MesssageContainer>();
+        // TODO: UIManager<UIManager<Widget>>
+        UIManager<Widget> widgetManager = new UIManager<Widget>();
         bool stopped;
         int retcode;
+
+        public UIManager<Widget> WidgetManager{ get { return widgetManager; } }
 
         public void PostMessage(IMessageHandler receiver, IMessage msg)
         {
             if(receiver == null)
-                return;
+                throw new ArgumentNullException("receiver");
 
             queue.Enqueue( new MesssageContainer(receiver, msg) );
         }
@@ -60,6 +68,7 @@ namespace Conwid.Core
         // Handles:
         // * QuitMessage
         // * KeyPressedMessage
+        // * SetTitleMessage
         public void Handle(IMessage msg)
         {
             if(msg is QuitMessage)
@@ -73,8 +82,12 @@ namespace Conwid.Core
                 if( keyInfo.IsEqualTo(ExitKeyInfo) )
                     this.PostMessage(new QuitMessage());
                 else
-                    WidgetManager.Instance.SendMessage(msg);
+                    WidgetManager.SendMessage(msg);
 
+            }
+            else if(msg is SetTitleMessage)
+            {
+                Console.Title = (msg as SetTitleMessage).Title;
             }
         }
 

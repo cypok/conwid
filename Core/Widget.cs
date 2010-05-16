@@ -6,7 +6,8 @@ using System.Drawing;
 
 namespace Conwid.Core
 {
-    public abstract class Widget : IMessageHandler
+    using Messages;
+    public abstract class Widget : IUIElement
     {
         // TODO: setter notifying WidgetManager about resizing
         public Rectangle Area { get; protected set; }
@@ -26,12 +27,43 @@ namespace Conwid.Core
 
         public bool IsActive()
         {
-            // TODO: ask parent
-            return WidgetManager.Instance.ActiveWidget == this;
+            return parent.ActiveElement == this;
         }
 
         abstract public void Handle(IMessage msg);
         abstract public void Draw(DrawSpace ds);
+
+        UIManager<Widget> parent;
+        public IUIElement Parent
+        {
+            get { return parent; }
+            set
+            {
+                if(value is UIManager<Widget>)
+                {
+                    var newParent = value as UIManager<Widget>;
+
+                    if(newParent == parent) // nothing changed
+                        return;
+                
+                    // remove itself from previous parent
+                    if(parent != null)
+                        parent.SendMessage( new RemoveUIElementMessage<Widget>(this) );
+                
+                    parent = newParent;
+                    parent.SendMessage( new AddUIElementMessage<Widget>(this) );
+                }
+                else
+                {
+                    throw new InvalidCastException("Only UIManager<Widget> can be a parent of a Widget");
+                }
+            }
+        }
+
+        public void Invalidate()
+        {
+            Parent.PostMessage( new RedrawUIElementMessage<Widget>(this) );
+        }
     }
 }
 

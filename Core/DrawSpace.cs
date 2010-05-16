@@ -19,7 +19,7 @@ namespace Conwid.Core
         public const string SingleBorder = "┌┐┘└─│─│";
         public const string DoubleBorder = "╔╗╝╚═║═║";        
 
-        #endregion Constants
+        #endregion //Constants
 
         #region Fields & Properties
 
@@ -31,7 +31,7 @@ namespace Conwid.Core
             get { return allowedRect.Size; }
         }
 
-        #endregion Fields & Properties 
+        #endregion //Fields & Properties 
             
         #region Constructors
             
@@ -44,7 +44,25 @@ namespace Conwid.Core
             deniedRects = denied != null ? denied : new Rectangle[0];
         }
 
-        #endregion Constructors
+        #endregion //Constructors
+
+        public static DrawSpace Screen
+        {
+            get
+            {
+                var screenArea = new Rectangle(Point.Empty, new Size(Console.BufferWidth, Console.BufferHeight));
+                return new DrawSpace(screenArea);
+            }
+        }
+
+        public DrawSpace CreateSubSpace(Rectangle allowed, IEnumerable<Rectangle> denied = null)
+        {
+            allowed.Intersect( allowedRect );
+            return new DrawSpace( allowed, deniedRects.Concat(denied) );
+        }
+        
+        #region Creating Helpers
+        #endregion //Creating Helpers
 
         #region Colors
 
@@ -62,7 +80,7 @@ namespace Conwid.Core
             set { Color.Background = value; }
         }
 
-        #endregion Colors
+        #endregion //Colors
 
         #region Drawing Methods
 
@@ -158,7 +176,7 @@ namespace Conwid.Core
                     PutCharacter(new Point(x,y), ch);
         }
 
-        #endregion Drawing Methods
+        #endregion //Drawing Methods
     }
 }
 

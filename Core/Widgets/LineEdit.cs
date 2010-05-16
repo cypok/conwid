@@ -76,7 +76,7 @@ namespace Conwid.Core.Widgets
                     if( TextRolling < (Text.Length - Area.Width + 1) )
                         TextRolling = Text.Length - Area.Width + 1;
                 }
-                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                Invalidate();
             }
             return;
         }
