@@ -19,7 +19,7 @@ namespace Demo
                 new Frame( new Rectangle(13,6,30,10), "With really long long long name" ),
                 new LineEdit( new Point(2,1), 15, "Hello, World!"),
                 new LineEdit( new Point(15,0), 4, "0123456789"),
-                new CheckBox( new Point(3,20), "nsu student"),
+                new CheckBox( new Point(3,18), "nsu student"),
                 new Button( new Point(40,1), "Push Me", height: 1),
                 new Button( new Point(40,2), "Push Me", height: 1, width: 7),
                 new Button( new Point(40,3), "Push Me", height: 1, width: 13),
@@ -39,7 +39,8 @@ namespace Demo
                 (_, text, __) => label.Text = text;
             widgets.Add(label);
             widgets.Add(leLabel);
-
+            
+            var boxesFrame = new Border(new Rectangle(2, 20, 16, 4));
             var cbRuby = new CheckBox( new Point(3,21), "love to Ruby", state: true);
             var cbCSharp = new CheckBox( new Point(3,22), "love to C#", state: false);
             cbRuby.OnStateChanged +=
@@ -47,6 +48,7 @@ namespace Demo
             cbCSharp.OnStateChanged +=
                 (_, state, __) => cbRuby.State = !state;
 
+            widgets.Add(boxesFrame);
             widgets.Add(cbRuby);
             widgets.Add(cbCSharp);
 
