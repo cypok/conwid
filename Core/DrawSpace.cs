@@ -139,12 +139,15 @@ namespace Conwid.Core
             PutCharacter(new Point(rect.Left,    rect.Bottom-1), pattern[3]);
 
             // title
+            if(title == null)
+                title = "";
+
             var maxTitleLength = rect.Width - 2;
-            if( title != null )
-                PutString(new Point(rect.Left+1, rect.Top), title, maxTitleLength);
+            PutString(new Point(rect.Left+1, rect.Top), title, maxTitleLength);
+
 
             // borders
-            if( title == null || title.Length < maxTitleLength )
+            if( title.Length < maxTitleLength )
                 DrawLine(new Point(rect.Left+1+title.Length, rect.Top), new Point(rect.Right-2, rect.Top), pattern[4]);
             DrawLine(new Point(rect.Right-1, rect.Top+1   ), new Point(rect.Right-1, rect.Bottom-2), pattern[5]);
             DrawLine(new Point(rect.Right-2, rect.Bottom-1), new Point(rect.Left+1,  rect.Bottom-1), pattern[6]);
