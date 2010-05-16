@@ -10,6 +10,8 @@ namespace Conwid.Core.Widgets
 
     public class LineEdit : Widget
     {
+        #region Constants
+
         readonly ConsoleKeyInfo BackspaceLineEditKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Backspace, control: false, shift: false, alt: false);
         readonly ConsoleKeyInfo RollLeftLineEditKeyInfo  = new ConsoleKeyInfo('_', ConsoleKey.LeftArrow, control: false, shift: false, alt: false);
         readonly ConsoleKeyInfo RollRightLineEditKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.RightArrow, control: false, shift: false, alt: false);
@@ -27,8 +29,18 @@ namespace Conwid.Core.Widgets
             Background = ConsoleColor.DarkGray
         };
 
+        #endregion Constants
+        
+        #region Fields & Properties
+
         public string Text { get; private set; }
         int TextRolling { get; set; }
+
+        #endregion Fields & Properties
+        
+        #region Events
+
+        #endregion Events
 
         public LineEdit(Point pos, int width, string text = "") : base(new Rectangle(pos, new Size(width, 1)))
         {

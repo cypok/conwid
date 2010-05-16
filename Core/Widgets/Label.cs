@@ -10,6 +10,8 @@ namespace Conwid.Core.Widgets
 
     public class Label : Widget
     {
+        #region Constants
+
         readonly Color ActiveLabelColor = new Color()
         {
             Foreground = ConsoleColor.Gray,
@@ -21,7 +23,17 @@ namespace Conwid.Core.Widgets
             Background = ConsoleColor.Black
         };
 
+        #endregion Constants
+        
+        #region Fields & Properties
+
         public string Text{ get; private set; }
+
+        #endregion Fields & Properties
+        
+        #region Events
+
+        #endregion Events
 
         public Label(Point pos, string text, int width = 0) :
             base(new Rectangle(pos, new Size( (width == 0) ? 2+text.Length : width, 1)))

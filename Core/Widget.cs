@@ -8,6 +8,8 @@ namespace Conwid.Core
 {
     public abstract class Widget : IMessageHandler
     {
+        #region Fields & Properties
+
         // TODO: setter notifying WidgetManager about resizing
         public Rectangle Area { get; protected set; }
         public Size Size
@@ -15,6 +17,12 @@ namespace Conwid.Core
             get { return Area.Size; }
             protected set { Area = new Rectangle(Area.Location, value); }
         }
+
+        #endregion Fields & Properties
+
+        #region Events
+        
+        #endregion Events
 
         public Widget(Rectangle area)
         {
