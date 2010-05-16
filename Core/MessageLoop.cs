@@ -32,7 +32,7 @@ namespace Conwid.Core
             get { return instance; }
         }
             
-        #endregion //Singleton implementation
+        #endregion // Singleton implementation
 
         readonly ConsoleKeyInfo ExitKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Q, control: true, shift: false, alt: false);
 

@@ -23,7 +23,7 @@ namespace Conwid.Core
             get { return instance; }
         }
 
-        #endregion //Singleton implementation
+        #endregion // Singleton implementation
         
         readonly ConsoleKeyInfo NextWidgetKeyInfo =     new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: false, alt: false);
         readonly ConsoleKeyInfo PreviousWidgetKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: true, alt: false);

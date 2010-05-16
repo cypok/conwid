@@ -29,7 +29,7 @@ namespace Conwid.Core.Widgets
             Background = ConsoleColor.DarkGray
         };
 
-        #endregion //Constants
+        #endregion // Constants
         
         #region Fields & Properties
 
@@ -50,14 +50,14 @@ namespace Conwid.Core.Widgets
         }
         private int TextRolling { get; set; }
 
-        #endregion //Fields & Properties
+        #endregion // Fields & Properties
         
         #region Events
         
         public delegate void TextChangeHandler(LineEdit le, string newValue, string oldValue);
         public event TextChangeHandler OnTextChanged;
 
-        #endregion //Events
+        #endregion // Events
 
         public LineEdit(Point pos, int width, string text = "") : base(new Rectangle(pos, new Size(width, 1)))
         {

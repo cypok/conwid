@@ -18,11 +18,11 @@ namespace Conwid.Core
             protected set { Area = new Rectangle(Area.Location, value); }
         }
 
-        #endregion //Fields & Properties
+        #endregion // Fields & Properties
 
         #region Events
 
-        #endregion //Events
+        #endregion // Events
 
         public Widget(Rectangle area)
         {

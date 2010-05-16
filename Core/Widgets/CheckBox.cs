@@ -37,7 +37,7 @@ namespace Conwid.Core.Widgets
             Background = ConsoleColor.Black
         };
 
-        #endregion //Constants
+        #endregion // Constants
         
         #region Fields & Properties
 
@@ -67,14 +67,14 @@ namespace Conwid.Core.Widgets
             }
         }
 
-        #endregion //Fields & Properties
+        #endregion // Fields & Properties
         
         #region Events
         
         public delegate void StateChangeHandler(CheckBox cb, bool newValue, bool oldValue);
         public event StateChangeHandler OnStateChanged;
 
-        #endregion //Events
+        #endregion // Events
 
         public CheckBox(Point pos, string text, bool state = false, int width = 0) :
             base(new Rectangle(pos, new Size( (width == 0) ? 2+text.Length : width, 1)))
