@@ -27,7 +27,16 @@ namespace Conwid.Core.Widgets
         
         #region Fields & Properties
 
-        public string Text{ get; private set; }
+        string text;
+        public string Text
+        { 
+            get { return text; }
+            set
+            {
+                text = value;
+                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+            }
+        }
 
         #endregion //Fields & Properties
         
@@ -38,7 +47,7 @@ namespace Conwid.Core.Widgets
         public Label(Point pos, string text, int width = 0) :
             base(new Rectangle(pos, new Size( (width == 0) ? 2+text.Length : width, 1)))
         {
-            Text = text;
+            this.text = text;
         }
 
         // Handles:

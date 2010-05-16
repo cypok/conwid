@@ -6,6 +6,8 @@ using System.Drawing;
 
 namespace Conwid.Core.Widgets
 {
+    using Messages;
+ 
     public class Frame : Widget
     {
         #region Constants
@@ -25,7 +27,16 @@ namespace Conwid.Core.Widgets
         
         #region Fields & Properties
 
-        public string Title { get; private set; }
+        string title;
+        public string Title
+        { 
+            get { return title; }
+            set
+            {
+                title = value;
+                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+            }
+        }
 
         #endregion //Fields & Properties
         
@@ -35,7 +46,7 @@ namespace Conwid.Core.Widgets
 
         public Frame(Rectangle area, string title = "") : base(area)
         {
-            Title = title;
+            this.title = title;
         }
         
         // Handles:

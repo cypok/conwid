@@ -21,8 +21,6 @@ namespace Conwid.Core
         #endregion //Fields & Properties
 
         #region Events
-        
-        public delegate void ChangesHandler(Widget w);
 
         #endregion //Events
 
@@ -38,6 +36,12 @@ namespace Conwid.Core
         {
             // TODO: ask parent
             return WidgetManager.Instance.ActiveWidget == this;
+        }
+
+        protected void Emit(MulticastDelegate d, params object[] objs)
+        {
+            if(d != null)
+                d.DynamicInvoke(objs);
         }
 
         abstract public void Handle(IMessage msg);

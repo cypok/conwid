@@ -33,18 +33,35 @@ namespace Conwid.Core.Widgets
         
         #region Fields & Properties
 
-        public string Text { get; private set; }
-        int TextRolling { get; set; }
+        private string text;
+        public string Text
+        { 
+            get { return text; }
+            set
+            {
+                if( text != value )
+                {
+                    var old = text;
+                    text = value;
+                    Emit(OnTextChanged, this, text, old);
+                    WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                }
+            }
+        }
+        private int TextRolling { get; set; }
 
         #endregion //Fields & Properties
         
         #region Events
+        
+        public delegate void TextChangeHandler(LineEdit le, string newValue, string oldValue);
+        public event TextChangeHandler OnTextChanged;
 
         #endregion //Events
 
         public LineEdit(Point pos, int width, string text = "") : base(new Rectangle(pos, new Size(width, 1)))
         {
-            Text = text;
+            this.text = text;
             TextRolling = 0;
         }
 

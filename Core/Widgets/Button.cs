@@ -39,13 +39,23 @@ namespace Conwid.Core.Widgets
 
         #region Fields & Properties
 
-        public string Text{ get; private set; }
+        string text;
+        public string Text
+        { 
+            get { return text; }
+            set
+            {
+                text = value;
+                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+            }
+        }
 
         #endregion //Fields & Properties
         
         #region Events
 
-        public event ChangesHandler OnPressed;
+        public delegate void PressHandler(Button b);
+        public event PressHandler OnPressed;
 
         #endregion //Events
 
@@ -55,7 +65,7 @@ namespace Conwid.Core.Widgets
             if( height == 2 )
                 throw new ArgumentException("Height could not be equal to 2");
 
-            Text = text;
+            this.text = text;
         }
         
         // Handles:
@@ -65,7 +75,7 @@ namespace Conwid.Core.Widgets
             var keyInfo = (msg as KeyPressedMessage).KeyInfo;
             if( keyInfo.IsEqualTo(PushButtonKeyInfo))
             {
-                OnPressed(this);
+                Emit(OnPressed, this);
             }
             WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
         }

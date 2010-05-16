@@ -41,20 +41,46 @@ namespace Conwid.Core.Widgets
         
         #region Fields & Properties
 
-        public string Text{ get; private set; }
-        public bool Value { get; private set; }
+        string text;
+        public string Text
+        { 
+            get { return text; }
+            set
+            {
+                text = value;
+                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+            }
+        }
+        private bool state;
+        public bool State
+        {
+            get { return state; }
+            set
+            {
+                if( state != value )
+                {
+                    var old = state;
+                    state = value;
+                    Emit(OnStateChanged, this, state, old);
+                    WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                }
+            }
+        }
 
         #endregion //Fields & Properties
         
         #region Events
+        
+        public delegate void StateChangeHandler(CheckBox cb, bool newValue, bool oldValue);
+        public event StateChangeHandler OnStateChanged;
 
         #endregion //Events
 
-        public CheckBox(Point pos, string text, bool value = false, int width = 0) :
+        public CheckBox(Point pos, string text, bool state = false, int width = 0) :
             base(new Rectangle(pos, new Size( (width == 0) ? 2+text.Length : width, 1)))
         {
-            Text = text;
-            Value = value;
+            this.text = text;
+            this.state = state;
         }
 
         // Handles:
@@ -68,9 +94,8 @@ namespace Conwid.Core.Widgets
                 var keyInfo = (msg as KeyPressedMessage).KeyInfo;
                 if( keyInfo.IsEqualTo(ChangeCheckBoxKeyInfo))
                 {
-                    Value = !Value;
+                    State = !State;
                 }
-                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
             }
             return;
         }
@@ -78,7 +103,7 @@ namespace Conwid.Core.Widgets
         public override void Draw(DrawSpace ds)
         {
             ds.Color = IsActive() ? ActiveBoxCheckBoxColor : InactiveBoxCheckBoxColor;
-            ds.PutString(Point.Empty, Value ? CheckCharacter.ToString() : " ", 1);
+            ds.PutString(Point.Empty, State ? CheckCharacter.ToString() : " ", 1);
             
             ds.Color = IsActive() ? ActiveTextCheckBoxColor : InactiveTextCheckBoxColor;
             var outText = " " + Text;
