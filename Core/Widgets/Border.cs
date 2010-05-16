@@ -9,6 +9,7 @@ namespace Conwid.Core.Widgets
     using Messages;
  
     // TODO: rename to Frame
+    //       user shouldn't be able to switch to border
     public class Border : Widget
     {
         #region Constants

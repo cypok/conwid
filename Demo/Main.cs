@@ -40,7 +40,7 @@ namespace Demo
             widgets.Add(label);
             widgets.Add(leLabel);
             
-            var boxesFrame = new Border(new Rectangle(2, 20, 16, 4));
+            //var boxesFrame = new Border(new Rectangle(2, 20, 16, 4));
             var cbRuby = new CheckBox( new Point(3,21), "love to Ruby", state: true);
             var cbCSharp = new CheckBox( new Point(3,22), "love to C#", state: false);
             cbRuby.OnStateChanged +=
@@ -48,9 +48,9 @@ namespace Demo
             cbCSharp.OnStateChanged +=
                 (_, state, __) => cbRuby.State = !state;
 
-            widgets.Add(boxesFrame);
             widgets.Add(cbRuby);
             widgets.Add(cbCSharp);
+            //widgets.Add(boxesFrame);
 
             foreach (var w in widgets)
                 WidgetManager.Instance.PostMessage(new AddWidgetMessage(w));
