@@ -34,7 +34,7 @@ namespace Conwid.Core.Widgets
             set
             {
                 title = value;
-                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                Invalidate();
             }
         }
 

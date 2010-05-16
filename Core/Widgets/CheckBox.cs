@@ -48,7 +48,7 @@ namespace Conwid.Core.Widgets
             set
             {
                 text = value;
-                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                Invalidate();
             }
         }
         private bool state;
@@ -62,7 +62,7 @@ namespace Conwid.Core.Widgets
                     var old = state;
                     state = value;
                     Emit(OnStateChanged, this, state, old);
-                    WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                    Invalidate();
                 }
             }
         }

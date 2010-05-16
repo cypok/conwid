@@ -44,7 +44,7 @@ namespace Conwid.Core.Widgets
                     var old = text;
                     text = value;
                     Emit(OnTextChanged, this, text, old);
-                    WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                    Invalidate();
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace Conwid.Core.Widgets
                     if( TextRolling < (Text.Length - Area.Width + 1) )
                         TextRolling = Text.Length - Area.Width + 1;
                 }
-                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                Invalidate();
             }
             return;
         }

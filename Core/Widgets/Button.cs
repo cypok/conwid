@@ -46,7 +46,7 @@ namespace Conwid.Core.Widgets
             set
             {
                 text = value;
-                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+                Invalidate();
             }
         }
 
@@ -76,8 +76,8 @@ namespace Conwid.Core.Widgets
             if( keyInfo.IsEqualTo(PushButtonKeyInfo))
             {
                 Emit(OnPressed, this);
+                Invalidate();
             }
-            WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
         }
 
         public override void Draw(DrawSpace ds)

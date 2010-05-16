@@ -6,6 +6,8 @@ using System.Drawing;
 
 namespace Conwid.Core
 {
+    using Messages;
+
     public abstract class Widget : IMessageHandler
     {
         #region Fields & Properties
@@ -42,6 +44,11 @@ namespace Conwid.Core
         {
             if(d != null)
                 d.DynamicInvoke(objs);
+        }
+
+        public void Invalidate()
+        {
+            WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
         }
 
         abstract public void Handle(IMessage msg);
