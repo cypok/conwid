@@ -7,36 +7,12 @@ using System.Drawing;
 namespace Conwid.Core
 {
     using Messages;
-    public abstract class Widget : IUIElement
+    public abstract class Widget : UIElement
     {
-        // TODO: setter notifying WidgetManager about resizing
-        public Rectangle Area { get; protected set; }
-        public Size Size
-        {
-            get { return Area.Size; }
-            protected set { Area = new Rectangle(Area.Location, value); }
-        }
-
-        public Widget(Rectangle area)
-        {
-            if(area == null)
-                throw new ArgumentNullException();
-
-            Area = area;
-        }
-
-        public bool IsActive()
-        {
-            if(parent == null)
-                return false;
-            return parent.ActiveElement == this;
-        }
-
-        abstract public void Handle(IMessage msg);
-        abstract public void Draw(DrawSpace ds);
+        public Widget(Rectangle area) : base(area) {}
 
         UIManager<Widget> parent;
-        public IUIElement Parent
+        public override UIElement Parent
         {
             get { return parent; }
             set
@@ -62,10 +38,17 @@ namespace Conwid.Core
                 }
             }
         }
-
-        public void Invalidate()
+        
+        public bool IsActive()
         {
-            Parent.PostMessage( new RedrawUIElementMessage<Widget>(this) );
+            if(parent == null)
+                return false;
+            return parent.ActiveElement == this;
+        }
+
+        public override void Invalidate(Rectangle? rect = null)
+        {
+            Parent.PostMessage( new InvalidateUIElementMessage<Widget>(this, rect) );
         }
     }
 }

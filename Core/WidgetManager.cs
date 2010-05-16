@@ -11,8 +11,8 @@ namespace Conwid.Core
     using Widgets;
 
     // TODO: rename file to UIManager.cs
-    public sealed class UIManager<Child> : IUIElement
-        where Child : IUIElement
+    public sealed class UIManager<Child> : UIElement
+        where Child : UIElement
     {
         #region Constants
 
@@ -22,19 +22,31 @@ namespace Conwid.Core
         public static readonly ConsoleKeyInfo NormalNextElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: false, alt: false);
         public static readonly ConsoleKeyInfo NormalPrevElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: true, alt: false);
 
+        readonly Color ActiveFrameColor = new Color()
+        {
+            Foreground = ConsoleColor.White,
+            Background = ConsoleColor.Black
+        };
+        readonly Color InactiveFrameColor = new Color()
+        {
+            Foreground = ConsoleColor.Gray,
+            Background = ConsoleColor.Black
+        };
+
+
         #endregion // Constants
 
         #region Fields and Properties
-
-        public Widget BackgroundWidget { get; private set; }
-        
+       
         private List<Child> children = new List<Child>();
         UIManager<UIManager<Child>> parent;
 
-        private static IUIElement topLevelManager; // used to avoid creation of more than one top-level UIManager
+        private static UIElement topLevelManager; // used to avoid creation of more than one top-level UIManager
 
         private ConsoleKeyInfo nextElementKeyInfo;
         private ConsoleKeyInfo prevElementKeyInfo;
+
+        public string Title { get; private set; }
         
         #endregion // Fields and Properties
 
@@ -44,14 +56,13 @@ namespace Conwid.Core
         /// Creates top-level UIManager
         /// </summary>
         internal UIManager(ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
+            : base( new Rectangle(Point.Empty, DrawSpace.Screen.Size) )
         {
             if (topLevelManager != null)
                 throw new InvalidOperationException("Only one top-level UIManager allowed");
 
             topLevelManager = this;
             parent = null;
-            var screenArea = new Rectangle(Point.Empty, DrawSpace.Screen.Size);
-            BackgroundWidget = new EmptyArea(screenArea);
 
             nextElementKeyInfo = nextElemKeyInfo ?? TopLevelNextElementKeyInfo;
             prevElementKeyInfo = prevElemKeyInfo ?? TopLevelPrevElementKeyInfo;
@@ -62,12 +73,14 @@ namespace Conwid.Core
         /// </summary>
         public UIManager(UIManager<UIManager<Child>> parent_, Rectangle area, string title="",
                          ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
+            : base(area)
         {
             if (parent_ == null)
                 throw new ArgumentNullException("parent_");
 
-            BackgroundWidget = new Frame(area, title);
             Parent = parent_;
+
+            Title = title;
 
             nextElementKeyInfo = nextElemKeyInfo ?? NormalNextElementKeyInfo;
             prevElementKeyInfo = prevElemKeyInfo ?? NormalPrevElementKeyInfo;
@@ -101,7 +114,7 @@ namespace Conwid.Core
         // * SwitchUIElementMessage
         // * KeyPressedMessage
         // * GlobalRedrawMessage (valid only if UIManager is top-level)
-        public void Handle(IMessage msg)
+        public override void Handle(IMessage msg)
         {
             if(msg is UIElementMessage<Child>)
             {
@@ -122,16 +135,20 @@ namespace Conwid.Core
                     // TODO: invalidate only affected area
                     Invalidate();
                 }
-                else if(msg is RedrawUIElementMessage<Child>)
+                else if(msg is InvalidateUIElementMessage<Child>)
                 {
+                    Rectangle? rect = (msg as InvalidateUIElementMessage<Child>).Rect;
+                    Rectangle actualInvalidRect = rect ?? new Rectangle(Point.Empty, e.Size);
+                    actualInvalidRect.Offset(e.Area.Location);
+
                     if(Parent != null)
                     {
-                        Parent.PostMessage( new RedrawUIElementMessage<UIManager<Child>>(this));
+                        Invalidate(actualInvalidRect);
                     }
                     else
                     {
                         // else I'm the big boss :)
-                        DrawChild(e, DrawSpace.Screen);
+                        DrawChild(e, DrawSpace.Screen.Restrict(actualInvalidRect));
                     }
                 }
             }
@@ -161,7 +178,7 @@ namespace Conwid.Core
                     children.MoveToBeginning(children.Count - 1);
 
                 foreach (var e in children)
-                    this.PostMessage( new RedrawUIElementMessage<Child>(e) );
+                    e.Invalidate();
 
             }
             else if(msg is GlobalRedrawMessage)
@@ -176,7 +193,7 @@ namespace Conwid.Core
 
         #region IUIElement Properties & Methods
         
-        public IUIElement Parent
+        public override UIElement Parent
         {
             get { return parent; }
             set
@@ -205,8 +222,6 @@ namespace Conwid.Core
                 }
             }
         }
-       
-        public Rectangle Area { get { return BackgroundWidget.Area; } }
         
         private void DrawChild(Child c, DrawSpace ds)
         {
@@ -215,23 +230,42 @@ namespace Conwid.Core
             c.Draw( ds.CreateSubSpace(c.Area, UpperElements(c).Select(x => x.Area)) );
         }
 
-        public void Draw(DrawSpace ds)
+        public bool IsActive()
         {
-            // TODO: how to tell the Frame with no parent whether it active or not???
-            BackgroundWidget.Draw(ds);
-            // TODO: required rect should be transferred to children somewhere near here
+            if(parent == null)
+                return true;
+            return parent.ActiveElement == this;
+        }
+
+        public override void Draw(DrawSpace ds)
+        {
+            if(Parent == null)
+            {
+                // Top-level drawing
+                ds.FillRectangle( new Rectangle(Point.Empty, Area.Size), ' ' );
+            }
+            else
+            {
+                // Normal drawing
+                ds.Color = IsActive() ? ActiveFrameColor : InactiveFrameColor;
+
+                var rect = new Rectangle(Point.Empty, Size);
+                ds.DrawBorder(rect, DrawSpace.DoubleBorder, Title);
+
+                //
+                ds.FillRectangle(new Rectangle(new Point(1,1), Size - new Size(2,2)), ' ');
+            }
             foreach(var c in children)
                 DrawChild(c, ds);
         }
 
-        public void Invalidate()
+        public override void Invalidate(Rectangle? rect = null)
         {
             if(Parent != null)
-                Parent.PostMessage( new RedrawUIElementMessage<UIManager<Child>>(this) );
+                Parent.PostMessage( new InvalidateUIElementMessage<UIManager<Child>>(this, rect) );
             else
                 this.PostMessage(new GlobalRedrawMessage());
         }
-
 
         #endregion // IUIElement Properties & Methods
 

@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 
 namespace Conwid.Core.Messages
 {
@@ -15,24 +16,33 @@ namespace Conwid.Core.Messages
         public SetTitleMessage(string title) { Title = title; }
     }
 
-    internal class UIElementMessage<Element> : SystemMessage  where Element : IUIElement
+    internal class UIElementMessage<Element> : SystemMessage 
+        where Element : UIElement
     {
         public Element UIElement { get; private set; }
         public UIElementMessage(Element e) { UIElement = e; }
     }
-    internal sealed class AddUIElementMessage<Element> : UIElementMessage<Element>  where Element : IUIElement
+    internal sealed class AddUIElementMessage<Element> : UIElementMessage<Element>
+        where Element : UIElement
     {
         public AddUIElementMessage(Element e) : base(e) {}
     }
-    internal sealed class RemoveUIElementMessage<Element> : UIElementMessage<Element>  where Element : IUIElement
+    internal sealed class RemoveUIElementMessage<Element> : UIElementMessage<Element>
+        where Element : UIElement
     {
         public RemoveUIElementMessage(Element e) : base(e) {}
     }
-    internal sealed class RedrawUIElementMessage<Element> : UIElementMessage<Element>  where Element : IUIElement
+    internal sealed class InvalidateUIElementMessage<Element> : UIElementMessage<Element>
+        where Element : UIElement
     {
-        public RedrawUIElementMessage(Element e) : base(e) {}
+        public Rectangle? Rect { get; private set; }
+        public InvalidateUIElementMessage(Element e, Rectangle? rect = null) : base(e) { Rect = rect; }
     }
-    internal sealed class GlobalRedrawMessage : SystemMessage {}
+    internal sealed class GlobalRedrawMessage : SystemMessage
+    {
+        public Rectangle? Rect { get; private set; }
+        public GlobalRedrawMessage(Rectangle? rect = null) { Rect = rect; }
+    }
     internal sealed class SwitchUIElementMessage : SystemMessage
     {
         public bool Next { get; private set; }

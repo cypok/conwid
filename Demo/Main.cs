@@ -27,7 +27,7 @@ namespace Demo
                 new LineEdit( new Point(1,1), 17, "Hello, World!") { Parent = widGroups[0] },
                 new LineEdit( new Point(1,3), 15, "") { Parent = widGroups[0] },
                 new LineEdit( new Point(10,4), 4, "0123456789") { Parent = widGroups[1] },
-                new CheckBox( new Point(3,1), "nsu student") { Parent = widGroups[2] },
+                new CheckBox( new Point(22,1), "nsu student") { Parent = widGroups[2] },
                 new CheckBox( new Point(3,3), "love to DaftPunk", width: 14) { Parent = widGroups[2] },
                 new CheckBox( new Point(3,5), "love to Ruby", value: true) { Parent = widGroups[2] },
             };

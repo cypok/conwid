@@ -57,8 +57,8 @@ namespace Conwid.Core.Widgets
                 if( keyInfo.IsEqualTo(ChangeCheckBoxKeyInfo))
                 {
                     Value = !Value;
+                    Invalidate();
                 }
-                Invalidate();
             }
             return;
         }

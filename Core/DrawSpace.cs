@@ -52,7 +52,7 @@ namespace Conwid.Core
         {
             get
             {
-                var screenArea = new Rectangle(Point.Empty, new Size(Console.BufferWidth, Console.BufferHeight));
+                var screenArea = new Rectangle(Point.Empty, new Size(Console.WindowWidth, Console.WindowHeight));
                 return new DrawSpace(screenArea);
             }
         }
@@ -61,8 +61,16 @@ namespace Conwid.Core
         {
             allowed.Offset( this.referencePoint );
             var refPoint = allowed.Location;
-            allowed.Intersect( allowedRect );
+            allowed.Intersect( this.allowedRect );
+                
             return new DrawSpace( allowed, deniedRects.Concat(denied), refPoint );
+        }
+
+        public DrawSpace Restrict(Rectangle restricted_area)
+        {
+            var new_allowed = allowedRect;
+            new_allowed.Intersect(restricted_area);
+            return new DrawSpace(new_allowed, deniedRects, referencePoint);
         }
         
         #region Creating Helpers

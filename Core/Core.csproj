@@ -51,15 +51,11 @@
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="Messages.cs" />
-    <Compile Include="IUIElement.cs" />
+    <Compile Include="UIElement.cs" />
     <Compile Include="Widget.cs" />
     <Compile Include="WidgetManager.cs" />
-    <Compile Include="Widgets\EmptyArea.cs" />
     <Compile Include="Widgets\CheckBox.cs" />
     <Compile Include="Widgets\LineEdit.cs" />
-    <Compile Include="Widgets\Frame.cs">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

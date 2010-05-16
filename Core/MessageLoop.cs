@@ -36,7 +36,7 @@ namespace Conwid.Core
         // Use MessageLoop.Instance instead.
         private MessageLoop() { }
             
-        #endregion //Singleton implementation
+        #endregion // Singleton implementation
 
         readonly ConsoleKeyInfo ExitKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Q, control: true, shift: false, alt: false);
 
