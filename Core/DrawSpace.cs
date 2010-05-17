@@ -33,57 +33,6 @@ namespace Conwid.Core
         }
 
         #endregion // Fields & Properties
-            
-        #region Constructors
-            
-        public DrawSpace(Rectangle allowed, IEnumerable<Rectangle> denied = null, Point? refPoint = null)
-        {
-            if(allowed == null)
-                throw new ArgumentNullException();
-
-            allowedRect = allowed;
-            deniedRects = denied ?? new Rectangle[0];
-            referencePoint = refPoint ?? allowedRect.Location;
-        }
-
-        #endregion // Constructors
-
-        #region Creating Helpers
-
-        public static DrawSpace Screen
-        {
-            get
-            {
-                var screenArea = new Rectangle(Point.Empty, new Size(Console.WindowWidth, Console.WindowHeight));
-                return new DrawSpace(screenArea);
-            }
-        }
-
-        public DrawSpace CreateSubSpace(Rectangle allowed, IEnumerable<Rectangle> denied = null)
-        {
-            allowed.Offset( this.referencePoint );
-            var refPoint = allowed.Location;
-            allowed.Intersect( this.allowedRect );
-            
-            var actualDenied = (denied ?? new Rectangle[0]).Select(
-                x => {
-                    var ad = x;
-                    ad.Offset( this.referencePoint );
-                    return ad;
-                }
-            );
-                
-            return new DrawSpace( allowed, deniedRects.Concat(actualDenied), refPoint );
-        }
-
-        public DrawSpace Restrict(Rectangle restricted_area)
-        {
-            var new_allowed = allowedRect;
-            new_allowed.Intersect(restricted_area);
-            return new DrawSpace(new_allowed, deniedRects, referencePoint);
-        }
-        
-        #endregion // Creating Helpers
 
         #region Colors
 
@@ -101,7 +50,77 @@ namespace Conwid.Core
             set { Color.Background = value; }
         }
 
+        
+        readonly Color DefaultColor = new Color()
+        {
+            Foreground = ConsoleColor.Gray,
+            Background = ConsoleColor.Black
+        };
+
         #endregion // Colors
+            
+        #region Constructors
+            
+        public DrawSpace(Rectangle allowed, IEnumerable<Rectangle> denied = null, Point? refPoint = null)
+        {
+            if(allowed == null)
+                throw new ArgumentNullException();
+
+            allowedRect = allowed;
+            deniedRects = denied ?? new Rectangle[0];
+            referencePoint = refPoint ?? allowedRect.Location;
+
+            Color = DefaultColor;
+        }
+
+        #endregion // Constructors
+
+        #region Creating Helpers
+
+        public static DrawSpace Screen
+        {
+            get
+            {
+                var screenArea = new Rectangle(Point.Empty, new Size(Console.WindowWidth, Console.WindowHeight));
+                return new DrawSpace(screenArea);
+            }
+        }
+
+        public DrawSpace CreateSubSpace(Rectangle? allowed, IEnumerable<Rectangle> denied = null)
+        {
+            Rectangle actualAllowed = allowed ?? this.allowedRect;
+            // if null given as allowed, it means leave the same allowedRect, so no offset needed
+            if(allowed != null)
+                actualAllowed.Offset( this.referencePoint );
+
+            var refPoint = actualAllowed.Location;
+            actualAllowed.Intersect( this.allowedRect );
+            
+            var actualDenied = (denied ?? new Rectangle[0]).Select(
+                x => {
+                    var ad = x;
+                    ad.Offset( this.referencePoint );
+                    return ad;
+                }
+            );
+                
+            return new DrawSpace( actualAllowed, deniedRects.Concat(actualDenied), refPoint );
+        }
+
+        public DrawSpace Restrict(Rectangle restricted_area)
+        {
+            var new_allowed = allowedRect;
+            new_allowed.Intersect(restricted_area);
+            return new DrawSpace(new_allowed, deniedRects, referencePoint);
+        }
+
+        public bool IsAffecting(Rectangle rect)
+        {
+            rect.Offset( this.referencePoint );
+            return rect.IntersectsWith( allowedRect );
+        }
+        
+        #endregion // Creating Helpers
 
         #region Drawing Methods
 

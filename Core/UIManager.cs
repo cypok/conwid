@@ -238,23 +238,27 @@ namespace Conwid.Core
 
         public override void Draw(DrawSpace ds)
         {
+            // TODO: Choose affected
+            var childrenToRedraw = children.FindAll( c => ds.IsAffecting(c.Area) );
+
+            var bgDS = ds.CreateSubSpace(null, childrenToRedraw.Select(x => x.Area));
             if(Parent == null)
             {
                 // Top-level drawing
-                ds.FillRectangle( new Rectangle(Point.Empty, Area.Size), ' ' );
+                bgDS.FillRectangle( new Rectangle(Point.Empty, Area.Size), ' ' );
             }
             else
             {
                 // Normal drawing
-                ds.Color = IsActive() ? ActiveFrameColor : InactiveFrameColor;
+                bgDS.Color = IsActive() ? ActiveFrameColor : InactiveFrameColor;
 
                 var rect = new Rectangle(Point.Empty, Size);
-                ds.DrawBorder(rect, DrawSpace.DoubleBorder, Title);
+                bgDS.DrawBorder(rect, DrawSpace.DoubleBorder, Title);
 
                 //
-                ds.FillRectangle(new Rectangle(new Point(1,1), Size - new Size(2,2)), ' ');
+                bgDS.FillRectangle(new Rectangle(new Point(1,1), Size - new Size(2,2)), ' ');
             }
-            foreach(var c in children)
+            foreach(var c in childrenToRedraw)
                 DrawChild(c, ds);
         }
 
