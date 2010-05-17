@@ -26,25 +26,25 @@ namespace Demo
 
             new LineEdit( new Point(1,1), 15, "Hello, World!") { Parent = wg[0] };
             new LineEdit( new Point(1,3), 4, "0123456789") { Parent = wg[0] };
-            //new CheckBox( new Point(2,5), "nsu student") { Parent = wg[0] };
-            //new Button( new Point(1,1), "Push Me", height: 1) { Parent = wg[1]};
-            //new Button( new Point(1,3), "Push Me", height: 1, width: 7) { Parent = wg[1]};
-            //new Button( new Point(1,5), "Push Me", height: 1, width: 13) { Parent = wg[1]};
-            //new Button( new Point(1,7), "Big Push Me") { Parent = wg[1]};
-            //new Button( new Point(1,10), "Bigger Push Me", height: 4, width: 22) { Parent = wg[1]};
+            new CheckBox( new Point(2,5), "nsu student") { Parent = wg[0] };
+            new Button( new Point(1,1), "Push Me", height: 1) { Parent = wg[1]};
+            new Button( new Point(1,3), "Push Me", height: 1, width: 7) { Parent = wg[1]};
+            new Button( new Point(1,5), "Push Me", height: 1, width: 13) { Parent = wg[1]};
+            new Button( new Point(1,7), "Big Push Me") { Parent = wg[1]};
+            new Button( new Point(1,10), "Bigger Push Me", height: 4, width: 22) { Parent = wg[1]};
 
-            var exitButton = new Button(new Point(50,20), " E X I T ", height: 3);
+            var exitButton = new Button(new Point(1,1), " E X I T ", height: 3) { Parent = wg[2] };
             exitButton.OnPressed += (
                 _ => MessageLoop.Instance.PostMessage(new QuitMessage())
             );
 
-            var label = new Label( new Point(25,0), "Edit me", width: 15);
-            var leLabel = new LineEdit( new Point(20,2), 15, "Edit me");
+            var label = new Label( new Point(2,5), "Edit me", width: 15) { Parent = wg[2] };
+            var leLabel = new LineEdit( new Point(2,6), 15, "Edit me") { Parent = wg[2] };
             leLabel.OnTextChanged +=
                 (_, text, __) => label.Text = text;
             
-            var cbRuby = new CheckBox( new Point(3,21), "love to Ruby", state: true);
-            var cbCSharp = new CheckBox( new Point(3,22), "love to C#", state: false);
+            var cbRuby = new CheckBox( new Point(3,8), "love to Ruby", state: true) { Parent = wg[2] };
+            var cbCSharp = new CheckBox( new Point(3,9), "love to C#", state: false) { Parent = wg[2] };
             cbRuby.OnStateChanged +=
                 (_, state, __) => cbCSharp.State = !state;
             cbCSharp.OnStateChanged +=

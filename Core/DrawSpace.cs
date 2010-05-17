@@ -64,8 +64,16 @@ namespace Conwid.Core
             allowed.Offset( this.referencePoint );
             var refPoint = allowed.Location;
             allowed.Intersect( this.allowedRect );
+            
+            var actualDenied = (denied ?? new Rectangle[0]).Select(
+                x => {
+                    var ad = x;
+                    ad.Offset( this.referencePoint );
+                    return ad;
+                }
+            );
                 
-            return new DrawSpace( allowed, deniedRects.Concat(denied), refPoint );
+            return new DrawSpace( allowed, deniedRects.Concat(actualDenied), refPoint );
         }
 
         public DrawSpace Restrict(Rectangle restricted_area)
