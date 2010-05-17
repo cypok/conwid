@@ -233,7 +233,7 @@ namespace Conwid.Core
         {
             if(parent == null)
                 return true;
-            return parent.ActiveElement == this;
+            return parent.ActiveElement == this && parent.IsActive();
         }
 
         public override void Draw(DrawSpace ds)

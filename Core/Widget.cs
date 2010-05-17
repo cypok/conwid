@@ -44,7 +44,7 @@ namespace Conwid.Core
         {
             if(parent == null)
                 return false;
-            return parent.ActiveElement == this;
+            return parent.ActiveElement == this && parent.IsActive();
         }
 
         protected void Emit(MulticastDelegate d, params object[] objs)
