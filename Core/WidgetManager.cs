@@ -3,118 +3,284 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Drawing;
 
 namespace Conwid.Core
 {
     using Messages;
+    using Widgets;
 
-    public sealed class WidgetManager : IMessageHandler
+    // TODO: rename file to UIManager.cs
+    public sealed class UIManager<Child> : UIElement
+        where Child : UIElement
     {
-        #region Singleton implementation
+        #region Constants
 
-        static readonly WidgetManager instance = new WidgetManager();
+        public static readonly ConsoleKeyInfo TopLevelNextElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo TopLevelPrevElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: true, alt: false);
 
-        // Explicit static constructor to tell C# compiler
-        // not to mark type as beforefieldinit
-        static WidgetManager() { }
+        public static readonly ConsoleKeyInfo NormalNextElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo NormalPrevElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: true, alt: false);
 
-        static public WidgetManager Instance
+        readonly Color ActiveFrameColor = new Color()
         {
-            get { return instance; }
-        }
+            Foreground = ConsoleColor.White,
+            Background = ConsoleColor.Black
+        };
+        readonly Color InactiveFrameColor = new Color()
+        {
+            Foreground = ConsoleColor.Gray,
+            Background = ConsoleColor.Black
+        };
 
-        #endregion // Singleton implementation
+
+        #endregion // Constants
+
+        #region Fields and Properties
+       
+        private List<Child> children = new List<Child>();
+        UIManager<UIManager<Child>> parent;
+
+        private static UIElement topLevelManager; // used to avoid creation of more than one top-level UIManager
+
+        private ConsoleKeyInfo nextElementKeyInfo;
+        private ConsoleKeyInfo prevElementKeyInfo;
+
+        public string Title { get; private set; }
         
-        readonly ConsoleKeyInfo NextWidgetKeyInfo =     new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: false, alt: false);
-        readonly ConsoleKeyInfo PreviousWidgetKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: true, alt: false);
-        
-        private List<Widget> widgets = new List<Widget>();
+        #endregion // Fields and Properties
 
-        private IEnumerable<Widget> LowerWidgets(Widget w)
-        {
-            return widgets.FindAll(x => widgets.IndexOf(x) > widgets.IndexOf(w));
-        }
-        private IEnumerable<Widget> UpperWidgets(Widget w)
-        {
-            return widgets.FindAll(x => widgets.IndexOf(x) < widgets.IndexOf(w));
-        }
-        public Widget ActiveWidget
-        {
-            get { return widgets.FirstOrDefault(); }
-        }
+        #region Constructors
         
+        /// <summary>
+        /// Creates top-level UIManager
+        /// </summary>
+        internal UIManager(ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
+            : base( new Rectangle(Point.Empty, DrawSpace.Screen.Size) )
+        {
+            if (topLevelManager != null)
+                throw new InvalidOperationException("Only one top-level UIManager allowed");
+
+            topLevelManager = this;
+            parent = null;
+
+            nextElementKeyInfo = nextElemKeyInfo ?? TopLevelNextElementKeyInfo;
+            prevElementKeyInfo = prevElemKeyInfo ?? TopLevelPrevElementKeyInfo;
+        }
+
+        /// <summary>
+        /// Creates non-top-level UIManager
+        /// </summary>
+        public UIManager(UIManager<UIManager<Child>> parent_, Rectangle area, string title="",
+                         ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
+            : base(area)
+        {
+            if (parent_ == null)
+                throw new ArgumentNullException("parent_");
+
+            Parent = parent_;
+
+            Title = title;
+
+            nextElementKeyInfo = nextElemKeyInfo ?? NormalNextElementKeyInfo;
+            prevElementKeyInfo = prevElemKeyInfo ?? NormalPrevElementKeyInfo;
+        }
+
+        #endregion // Constructors
+
+        #region Collection Helpers
+
+        private IEnumerable<Child> LowerElements(Child c)
+        {
+            return children.FindAll(x => children.IndexOf(x) > children.IndexOf(c));
+        }
+        private IEnumerable<Child> UpperElements(Child c)
+        {
+            return children.FindAll(x => children.IndexOf(x) < children.IndexOf(c));
+        }
+        public Child ActiveElement
+        {
+            get { return children.FirstOrDefault(); }
+        }
+
+        #endregion // Collection Helpers
+
+        #region Message Handling (Main functionality here)
+
         // Handles:
-        // * AddWidgetMessage
-        // * RemoveWidgetMessage
-        // * RedrawWidgetMessage
-        // * SwitchWidgetMessage
+        // * AddUIElementMessage<Element>
+        // * RemoveUIElementMessage<Element>
+        // * RedrawUIElementMessage<Element>
+        // * SwitchUIElementMessage
         // * KeyPressedMessage
-        public void Handle(IMessage msg)
+        // * GlobalRedrawMessage (valid only if UIManager is top-level)
+        public override void Handle(IMessage msg)
         {
-            if(msg is WidgetManipulationMessage)
+            if(msg is UIElementMessage<Child>)
             {
-                var w = (msg as WidgetManipulationMessage).Widget;
+                var e = (msg as UIElementMessage<Child>).UIElement;
                 
                 
-                if(msg is AddWidgetMessage)
+                if(msg is AddUIElementMessage<Child>)
                 {
-                    if(widgets.Contains(w))
-                        throw new InvalidOperationException("Widget already added to WidgetManager");
-                    widgets.Insert(0, w);
+                    if(children.Contains(e))
+                        throw new InvalidOperationException("Element already added to UIManager");
+                    children.Insert(0, e);
+                    // TODO: invalidate only affected area
+                    e.Invalidate();
                 }
-                else if(msg is RemoveWidgetMessage)
+                else if(msg is RemoveUIElementMessage<Child>)
                 {
-                    widgets.Remove(w);
+                    children.Remove(e);
+                    // TODO: invalidate only affected area
+                    Invalidate();
                 }
-                else if(msg is RedrawWidgetMessage)
+                else if(msg is InvalidateUIElementMessage<Child>)
                 {
-                    if(!widgets.Contains(w))
-                        throw new InvalidOperationException("Widget not added to WidgetManager being redrawed");
-                    w.Draw( new DrawSpace(w.Area, UpperWidgets(w).Select(x => x.Area)) );
+                    Rectangle? rect = (msg as InvalidateUIElementMessage<Child>).Rect;
+                    Rectangle actualInvalidRect = rect ?? new Rectangle(Point.Empty, e.Size);
+                    actualInvalidRect.Offset(e.Area.Location);
+
+                    if(Parent != null)
+                    {
+                        Invalidate(actualInvalidRect);
+                    }
+                    else
+                    {
+                        // else I'm the big boss :)
+                        DrawChild(e, DrawSpace.Screen.Restrict(actualInvalidRect));
+                    }
                 }
             }
             else if(msg is KeyPressedMessage)
             {
                 var keyInfo = (msg as KeyPressedMessage).KeyInfo;
 
-                if(keyInfo.IsEqualTo(NextWidgetKeyInfo))
+                if(keyInfo.IsEqualTo(nextElementKeyInfo))
                 {
-                    this.SendMessage(new SwitchWidgetMessage(next: true));
+                    this.SendMessage(new SwitchUIElementMessage(next: true));
                 }
-                else if(keyInfo.IsEqualTo(PreviousWidgetKeyInfo))
+                else if(keyInfo.IsEqualTo(prevElementKeyInfo))
                 {
-                    this.SendMessage(new SwitchWidgetMessage(next: false));
+                    this.SendMessage(new SwitchUIElementMessage(next: false));
                 }
-                else if(ActiveWidget != null)
+                else if(ActiveElement != null)
                 {
-                    ActiveWidget.SendMessage(msg);
+                    ActiveElement.SendMessage(msg);
                 }
-                // else unhandled key :(
+                // and if can't handle key and have no one to forward it to - nothing to do :(
             }
-            else if (msg is SwitchWidgetMessage && !widgets.IsEmpty())
+            else if(msg is SwitchUIElementMessage && !children.IsEmpty())
             {
-                if((msg as SwitchWidgetMessage).Next)
-                    widgets.MoveToEnding(0);
+                if((msg as SwitchUIElementMessage).Next)
+                    children.MoveToEnding(0);
                 else
-                    widgets.MoveToBeginning(widgets.Count - 1);
+                    children.MoveToBeginning(children.Count - 1);
 
-                // cypok
-                //widgets.ForEach( w => this.PostMessage(new RedrawWidgetMessage(w)) );
+                foreach (var e in children)
+                    e.Invalidate();
 
-                // NIA
-                foreach (var w in widgets)
-                    this.PostMessage( new RedrawWidgetMessage(w) );
-
+            }
+            else if(msg is GlobalRedrawMessage)
+            {
+                if(Parent != null)
+                    throw new InvalidOperationException("GlobalRedrawMessage");
+                Draw(DrawSpace.Screen);
             }
         }
+
+        #endregion // Message Handling
+
+        #region IUIElement Properties & Methods
+        
+        public override UIElement Parent
+        {
+            get { return parent; }
+            set
+            {
+                // copypaste from Widget, but how to do it otherwise? :(
+                if (value is UIManager<UIManager<Child>>)
+                {
+                    var newParent = value as UIManager<UIManager<Child>>;
+
+                    if(newParent == null)
+                        throw new ArgumentNullException();
+
+                    if(newParent == parent) // nothing changed
+                        return;
+
+                    // remove itself from previous parent
+                    if (parent != null)
+                        parent.SendMessage(new RemoveUIElementMessage<UIManager<Child>>(this));
+
+                    parent = newParent;
+                    parent.SendMessage(new AddUIElementMessage<UIManager<Child>>(this));
+                }
+                else
+                {
+                    throw new InvalidCastException("Only UIManager<UIManager<Element>> can be a parent of a UIManager<Element>");
+                }
+            }
+        }
+        
+        private void DrawChild(Child c, DrawSpace ds)
+        {
+            if(!children.Contains(c))
+                throw new InvalidOperationException("Element not added to UIManager being redrawed");
+            c.Draw( ds.CreateSubSpace(c.Area, UpperElements(c).Select(x => x.Area)) );
+        }
+
+        public bool IsActive()
+        {
+            if(parent == null)
+                return true;
+            return parent.ActiveElement == this;
+        }
+
+        public override void Draw(DrawSpace ds)
+        {
+            if(Parent == null)
+            {
+                // Top-level drawing
+                ds.FillRectangle( new Rectangle(Point.Empty, Area.Size), ' ' );
+            }
+            else
+            {
+                // Normal drawing
+                ds.Color = IsActive() ? ActiveFrameColor : InactiveFrameColor;
+
+                var rect = new Rectangle(Point.Empty, Size);
+                ds.DrawBorder(rect, DrawSpace.DoubleBorder, Title);
+
+                //
+                ds.FillRectangle(new Rectangle(new Point(1,1), Size - new Size(2,2)), ' ');
+            }
+            foreach(var c in children)
+                DrawChild(c, ds);
+        }
+
+        public override void Invalidate(Rectangle? rect = null)
+        {
+            if(Parent != null)
+                Parent.PostMessage( new InvalidateUIElementMessage<UIManager<Child>>(this, rect) );
+            else
+                this.PostMessage(new GlobalRedrawMessage());
+        }
+
+        #endregion // IUIElement Properties & Methods
+
+        #region Debug Methods
 
         public string DebugDump()
         {
             var s = "";
-            s += "Widgets:\n";
-            var strings = widgets.Select( w => String.Format(" - {0} #{1}", w, w.GetHashCode()) );
+            s += this.GetType().Name + "\n";
+            s += "Elements:\n";
+            var strings = children.Select( e => String.Format(" - {0} #{1}", e, e.GetHashCode()) );
             s += String.Join("\n", strings);
             return s;
         }
+
+        #endregion // Debug Methods
     }
 }

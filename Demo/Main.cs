@@ -8,37 +8,40 @@ using Conwid.Core.Widgets;
 
 namespace Demo
 {
+    using WidgetGroup = UIManager<Widget>; // it's not a typedef, it's defined only in current file. But it's a bit better :)
+
     class MainClass
     {
         public static void Main (string[] args)
         {
-            var widgets = new List<Widget>
+            var theLoop = MessageLoop.Instance;
+
+            var wg = new WidgetGroup[]
             {
-                new Frame( new Rectangle(3,3,30,10), "First" ),
-                new Frame( new Rectangle(8,5,30,10) ),
-                new Frame( new Rectangle(13,6,30,10), "With really long long long name" ),
-                new LineEdit( new Point(2,1), 15, "Hello, World!"),
-                new LineEdit( new Point(15,0), 4, "0123456789"),
-                new CheckBox( new Point(3,18), "nsu student"),
-                new Button( new Point(40,1), "Push Me", height: 1),
-                new Button( new Point(40,2), "Push Me", height: 1, width: 7),
-                new Button( new Point(40,3), "Push Me", height: 1, width: 13),
-                new Button( new Point(50,5), "Big Push Me"),
-                new Button( new Point(50,9), "Bigger Push Me", height: 4, width: 22),
+                new WidgetGroup(theLoop.WidgetManager, new Rectangle(3,2,45,12), "First"),
+                new WidgetGroup(theLoop.WidgetManager, new Rectangle(12,6,45,18)),
+                new WidgetGroup(theLoop.WidgetManager, new Rectangle(21,10,45,12), "With really long long long name"),
             };
+
+
+            new LineEdit( new Point(1,1), 15, "Hello, World!") { Parent = wg[0] };
+            new LineEdit( new Point(1,3), 4, "0123456789") { Parent = wg[0] };
+            //new CheckBox( new Point(2,5), "nsu student") { Parent = wg[0] };
+            //new Button( new Point(1,1), "Push Me", height: 1) { Parent = wg[1]};
+            //new Button( new Point(1,3), "Push Me", height: 1, width: 7) { Parent = wg[1]};
+            //new Button( new Point(1,5), "Push Me", height: 1, width: 13) { Parent = wg[1]};
+            //new Button( new Point(1,7), "Big Push Me") { Parent = wg[1]};
+            //new Button( new Point(1,10), "Bigger Push Me", height: 4, width: 22) { Parent = wg[1]};
 
             var exitButton = new Button(new Point(50,20), " E X I T ", height: 3);
             exitButton.OnPressed += (
                 _ => MessageLoop.Instance.PostMessage(new QuitMessage())
             );
-            widgets.Add(exitButton);
 
             var label = new Label( new Point(25,0), "Edit me", width: 15);
             var leLabel = new LineEdit( new Point(20,2), 15, "Edit me");
             leLabel.OnTextChanged +=
                 (_, text, __) => label.Text = text;
-            widgets.Add(label);
-            widgets.Add(leLabel);
             
             var cbRuby = new CheckBox( new Point(3,21), "love to Ruby", state: true);
             var cbCSharp = new CheckBox( new Point(3,22), "love to C#", state: false);
@@ -47,21 +50,11 @@ namespace Demo
             cbCSharp.OnStateChanged +=
                 (_, state, __) => cbRuby.State = !state;
 
-            widgets.Add(cbRuby);
-            widgets.Add(cbCSharp);
-
-            foreach (var w in widgets)
-                WidgetManager.Instance.PostMessage(new AddWidgetMessage(w));
-            foreach (var w in widgets)
-                WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(w));
-
             Console.CursorVisible = false;
 
-            //MessageLoop.Instance.PostMessage(new QuitMessage());
-            
-            MessageLoop.Instance.Run();
+            theLoop.Run();
 
-            Console.WriteLine( WidgetManager.Instance.DebugDump() );
+            Console.WriteLine( theLoop.WidgetManager.DebugDump() );
         }
     }
 }

@@ -7,37 +7,44 @@ using System.Drawing;
 namespace Conwid.Core
 {
     using Messages;
-
-    public abstract class Widget : IMessageHandler
+    
+    public abstract class Widget : UIElement
     {
-        #region Fields & Properties
+        public Widget(Rectangle area) : base(area) {}
 
-        // TODO: setter notifying WidgetManager about resizing
-        public Rectangle Area { get; protected set; }
-        public Size Size
+        UIManager<Widget> parent;
+        public override UIElement Parent
         {
-            get { return Area.Size; }
-            protected set { Area = new Rectangle(Area.Location, value); }
+            get { return parent; }
+            set
+            {
+                if(value is UIManager<Widget>)
+                {
+                    var newParent = value as UIManager<Widget>;
+
+                    if(newParent == parent) // nothing changed
+                        return;
+                
+                    // remove itself from previous parent
+                    if(parent != null)
+                        parent.SendMessage( new RemoveUIElementMessage<Widget>(this) );
+                
+                    parent = newParent;
+                    if(parent != null)
+                        parent.SendMessage( new AddUIElementMessage<Widget>(this) );
+                }
+                else
+                {
+                    throw new InvalidCastException("Only UIManager<Widget> can be a parent of a Widget");
+                }
+            }
         }
-
-        #endregion // Fields & Properties
-
-        #region Events
-
-        #endregion // Events
-
-        public Widget(Rectangle area)
-        {
-            if(area == null)
-                throw new ArgumentNullException();
-
-            Area = area;
-        }
-
+        
         public bool IsActive()
         {
-            // TODO: ask parent
-            return WidgetManager.Instance.ActiveWidget == this;
+            if(parent == null)
+                return false;
+            return parent.ActiveElement == this;
         }
 
         protected void Emit(MulticastDelegate d, params object[] objs)
@@ -46,13 +53,10 @@ namespace Conwid.Core
                 d.DynamicInvoke(objs);
         }
 
-        public void Invalidate()
+        public override void Invalidate(Rectangle? rect = null)
         {
-            WidgetManager.Instance.PostMessage(new RedrawWidgetMessage(this));
+            Parent.PostMessage( new InvalidateUIElementMessage<Widget>(this, rect) );
         }
-
-        abstract public void Handle(IMessage msg);
-        abstract public void Draw(DrawSpace ds);
     }
 }
 

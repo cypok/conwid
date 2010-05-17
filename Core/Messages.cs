@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 
 namespace Conwid.Core.Messages
 {
@@ -9,34 +10,48 @@ namespace Conwid.Core.Messages
         public int Code { get; private set; }
         public QuitMessage(int code = 0) { Code = code; }
     }
+    public sealed class SetTitleMessage : SystemMessage
+    {
+        public string Title { get; private set; }
+        public SetTitleMessage(string title) { Title = title; }
+    }
 
-    public class WidgetManipulationMessage : SystemMessage
+    internal class UIElementMessage<Element> : SystemMessage 
+        where Element : UIElement
     {
-        public Widget Widget { get; private set; }
-        public WidgetManipulationMessage(Widget w) { Widget = w; }
+        public Element UIElement { get; private set; }
+        public UIElementMessage(Element e) { UIElement = e; }
     }
-    public sealed class AddWidgetMessage : WidgetManipulationMessage
+    internal sealed class AddUIElementMessage<Element> : UIElementMessage<Element>
+        where Element : UIElement
     {
-        public AddWidgetMessage(Widget w) : base(w) {}
+        public AddUIElementMessage(Element e) : base(e) {}
     }
-    public sealed class RemoveWidgetMessage : WidgetManipulationMessage
+    internal sealed class RemoveUIElementMessage<Element> : UIElementMessage<Element>
+        where Element : UIElement
     {
-        public RemoveWidgetMessage(Widget w) : base(w) {}
+        public RemoveUIElementMessage(Element e) : base(e) {}
     }
-    public sealed class RedrawWidgetMessage : WidgetManipulationMessage
+    internal sealed class InvalidateUIElementMessage<Element> : UIElementMessage<Element>
+        where Element : UIElement
     {
-        public RedrawWidgetMessage(Widget w) : base(w) {}
+        public Rectangle? Rect { get; private set; }
+        public InvalidateUIElementMessage(Element e, Rectangle? rect = null) : base(e) { Rect = rect; }
+    }
+    internal sealed class GlobalRedrawMessage : SystemMessage
+    {
+        public Rectangle? Rect { get; private set; }
+        public GlobalRedrawMessage(Rectangle? rect = null) { Rect = rect; }
+    }
+    internal sealed class SwitchUIElementMessage : SystemMessage
+    {
+        public bool Next { get; private set; }
+        public SwitchUIElementMessage(bool next = true) { Next = next; }
     }
 
     public sealed class KeyPressedMessage : SystemMessage
     {
         public ConsoleKeyInfo KeyInfo { get; private set; }
         public KeyPressedMessage(ConsoleKeyInfo ki) { KeyInfo = ki; }
-    }
-
-    public sealed class SwitchWidgetMessage : SystemMessage
-    {
-        public bool Next { get; private set; }
-        public SwitchWidgetMessage(bool next = true) { Next = next; }
     }
 }
