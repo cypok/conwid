@@ -10,7 +10,6 @@ namespace Conwid.Core
     using Messages;
     using Widgets;
 
-    // TODO: rename file to UIManager.cs
     public sealed class UIManager<Child> : UIElement
         where Child : UIElement
     {

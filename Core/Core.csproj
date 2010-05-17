@@ -53,7 +53,7 @@
     <Compile Include="Messages.cs" />
     <Compile Include="UIElement.cs" />
     <Compile Include="Widget.cs" />
-    <Compile Include="WidgetManager.cs" />
+    <Compile Include="UIManager.cs" />
     <Compile Include="Widgets\CheckBox.cs" />
     <Compile Include="Widgets\Button.cs" />
     <Compile Include="Widgets\Label.cs" />
