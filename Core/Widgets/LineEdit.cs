@@ -75,7 +75,7 @@ namespace Conwid.Core.Widgets
             {
                 var keyInfo = (msg as KeyPressedMessage).KeyInfo;
                 var keyChar = keyInfo.KeyChar;
-                if( keyInfo.IsEqualTo(BackspaceLineEditKeyInfo) && Text.Length > 0 )
+                if( keyInfo.EqualsTo(BackspaceLineEditKeyInfo) && Text.Length > 0 )
                 {
                     Text = Text.Substring(0, Text.Length-1);
                     if( TextRolling >= Text.Length && TextRolling > 0)
@@ -83,21 +83,21 @@ namespace Conwid.Core.Widgets
                     if( TextRolling < (Text.Length - Area.Width + 1) )
                         TextRolling = Text.Length - Area.Width + 1;
                 }
-                else if( keyInfo.IsEqualTo(RollLeftLineEditKeyInfo) )
+                else if( keyInfo.EqualsTo(RollLeftLineEditKeyInfo) )
                 {
                     if( TextRolling > 0)
                         TextRolling--;
                 }
-                else if( keyInfo.IsEqualTo(RollRightLineEditKeyInfo) )
+                else if( keyInfo.EqualsTo(RollRightLineEditKeyInfo) )
                 {
                     if( TextRolling < (Text.Length - Area.Width + 1) )
                         TextRolling++;
                 }
-                else if( keyInfo.IsEqualTo(RollHomeLineEditKeyInfo) )
+                else if( keyInfo.EqualsTo(RollHomeLineEditKeyInfo) )
                 {
                     TextRolling = 0;
                 }
-                else if( keyInfo.IsEqualTo(RollEndLineEditKeyInfo) )
+                else if( keyInfo.EqualsTo(RollEndLineEditKeyInfo) )
                 {
                     TextRolling = Text.Length - Area.Width + 1;
                 }

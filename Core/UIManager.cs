@@ -155,11 +155,11 @@ namespace Conwid.Core
             {
                 var keyInfo = (msg as KeyPressedMessage).KeyInfo;
 
-                if(keyInfo.IsEqualTo(nextElementKeyInfo))
+                if(keyInfo.EqualsTo(nextElementKeyInfo))
                 {
                     this.SendMessage(new SwitchUIElementMessage(next: true));
                 }
-                else if(keyInfo.IsEqualTo(prevElementKeyInfo))
+                else if(keyInfo.EqualsTo(prevElementKeyInfo))
                 {
                     this.SendMessage(new SwitchUIElementMessage(next: false));
                 }

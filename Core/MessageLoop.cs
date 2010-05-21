@@ -78,7 +78,7 @@ namespace Conwid.Core
             else if(msg is KeyPressedMessage)
             {
                 var keyInfo = (msg as KeyPressedMessage).KeyInfo;
-                if( keyInfo.IsEqualTo(ExitKeyInfo) )
+                if( keyInfo.EqualsTo(ExitKeyInfo) )
                     this.PostMessage(new QuitMessage());
                 else
                     WidgetManager.SendMessage(msg);

@@ -73,7 +73,7 @@ namespace Conwid.Core.Widgets
         public override void Handle(IMessage msg)
         {
             var keyInfo = (msg as KeyPressedMessage).KeyInfo;
-            if( keyInfo.IsEqualTo(PushButtonKeyInfo))
+            if( keyInfo.EqualsTo(PushButtonKeyInfo))
             {
                 Emit(OnPressed, this);
                 Invalidate();

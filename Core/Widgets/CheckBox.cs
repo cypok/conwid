@@ -92,7 +92,7 @@ namespace Conwid.Core.Widgets
             if(msg is KeyPressedMessage)
             {
                 var keyInfo = (msg as KeyPressedMessage).KeyInfo;
-                if( keyInfo.IsEqualTo(ChangeCheckBoxKeyInfo))
+                if( keyInfo.EqualsTo(ChangeCheckBoxKeyInfo))
                 {
                     State = !State;
                 }
