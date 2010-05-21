@@ -31,7 +31,7 @@ namespace Demo
             new Button( new Point(1,3), "Push Me", height: 1, width: 7) { Parent = wg[1]};
             new Button( new Point(1,5), "Push Me", height: 1, width: 13) { Parent = wg[1]};
             new Button( new Point(1,7), "Big Push Me") { Parent = wg[1]};
-            new Button( new Point(1,10), "Bigger Push Me", height: 4, width: 22) { Parent = wg[1]};
+            new Button( new Point(1,10), "Bigger Push Me", height: 5, width: 22) { Parent = wg[1]};
 
             var exitButton = new Button(new Point(1,1), " E X I T ", height: 3) { Parent = wg[2] };
             exitButton.OnPressed += (

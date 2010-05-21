@@ -106,6 +106,12 @@ namespace Conwid.Core.Widgets
             // text
             ds.Color = IsActive() ? ActiveTextButtonColor : InactiveTextButtonColor;
             ds.PutString(new Point(1,Area.Height/2), outStr, Area.Width-2);
+            if( Area.Height > 3 )
+            {
+                // we need to erase spare space
+                ds.FillRectangle(new Rectangle(1, 1, Area.Width-2, Area.Height/2-1), ' ');
+                ds.FillRectangle(new Rectangle(1, Area.Height/2+1, Area.Width-2, (Area.Height+1)/2-2), ' ');
+            }
         }
     }
 }
