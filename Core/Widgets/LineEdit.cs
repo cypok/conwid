@@ -80,6 +80,8 @@ namespace Conwid.Core.Widgets
                     Text = Text.Substring(0, Text.Length-1);
                     if( TextRolling >= Text.Length && TextRolling > 0)
                         TextRolling--;
+                    if( TextRolling < (Text.Length - Area.Width + 1) )
+                        TextRolling = Text.Length - Area.Width + 1;
                 }
                 else if( keyInfo.IsEqualTo(RollLeftLineEditKeyInfo) )
                 {
