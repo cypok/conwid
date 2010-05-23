@@ -90,10 +90,13 @@ namespace Conwid.Core
         {
             Rectangle actualAllowed = allowed ?? this.allowedRect;
             // if null given as allowed, it means leave the same allowedRect, so no offset needed
+            var refPoint = this.referencePoint;
             if(allowed != null)
+            {
                 actualAllowed.Offset( this.referencePoint );
+                refPoint = actualAllowed.Location;
+            }
 
-            var refPoint = actualAllowed.Location;
             actualAllowed.Intersect( this.allowedRect );
             
             var actualDenied = (denied ?? new Rectangle[0]).Select(
@@ -104,7 +107,7 @@ namespace Conwid.Core
                 }
             );
                 
-            return new DrawSpace( actualAllowed, deniedRects.Concat(actualDenied), refPoint );
+            return new DrawSpace( actualAllowed, this.deniedRects.Concat(actualDenied), refPoint );
         }
 
         public DrawSpace Restrict(Rectangle restricted_area)

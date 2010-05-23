@@ -22,12 +22,12 @@ namespace Conwid.Core.Widgets
         readonly Color InactiveBorderButtonColor = new Color()
         {
             Foreground = ConsoleColor.Gray,
-            Background = ConsoleColor.DarkGray
+            Background = ConsoleColor.Black
         };
         readonly Color ActiveTextButtonColor = new Color()
         {
             Foreground = ConsoleColor.White,
-            Background = ConsoleColor.Black
+            Background = ConsoleColor.DarkGray
         };
         readonly Color InactiveTextButtonColor = new Color()
         {
@@ -76,7 +76,7 @@ namespace Conwid.Core.Widgets
             if( keyInfo.EqualsTo(PushButtonKeyInfo))
             {
                 Emit(OnPressed, this);
-                Invalidate();
+                //Invalidate(); // Is it needed?! Anyway, temporarily commented for debugging purposes
             }
         }
 

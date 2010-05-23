@@ -18,7 +18,7 @@ namespace Conwid.Core
             get { return parent; }
             set
             {
-                if(value is UIManager<Widget>)
+                if(value == null || value is UIManager<Widget>)
                 {
                     var newParent = value as UIManager<Widget>;
 
@@ -31,7 +31,14 @@ namespace Conwid.Core
                 
                     parent = newParent;
                     if(parent != null)
+                    {
                         parent.SendMessage( new AddUIElementMessage<Widget>(this) );
+                        IsEnabled = true;
+                    }
+                    else
+                    {
+                        IsEnabled = false;
+                    }
                 }
                 else
                 {

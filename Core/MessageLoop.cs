@@ -58,7 +58,7 @@ namespace Conwid.Core
         public void SendMessage(IMessageHandler receiver, IMessage msg)
         {
             if(receiver == null)
-                return;
+                throw new ArgumentNullException("receiver");
 
             receiver.Handle(msg);
         }
@@ -79,7 +79,7 @@ namespace Conwid.Core
             {
                 var keyInfo = (msg as KeyPressedMessage).KeyInfo;
                 if( keyInfo.EqualsTo(ExitKeyInfo) )
-                    this.PostMessage(new QuitMessage());
+                    this.SendMessage(new QuitMessage());
                 else
                     WidgetManager.SendMessage(msg);
 
@@ -89,6 +89,7 @@ namespace Conwid.Core
                 Console.Title = (msg as SetTitleMessage).Title;
             }
         }
+        public bool IsEnabled { get { return true; } }
 
         public int Run()
         {
@@ -103,7 +104,8 @@ namespace Conwid.Core
                     continue;
 
                 var mc = queue.Dequeue();
-                SendMessage(mc.receiver, mc.message);
+                if(mc.receiver.IsEnabled)
+                    SendMessage(mc.receiver, mc.message);
             }
             while(!stopped);
 

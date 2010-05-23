@@ -17,6 +17,8 @@ namespace Conwid.Core
             get { return Area.Size; }
             protected set { Area = new Rectangle(Area.Location, value); }
         }
+
+        public bool IsEnabled { get; protected set; }
         
         public UIElement(Rectangle area)
         {
@@ -24,6 +26,7 @@ namespace Conwid.Core
                 throw new ArgumentNullException();
 
             Area = area;
+            IsEnabled = false;
         }
         
         abstract public void Handle(IMessage msg);
