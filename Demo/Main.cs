@@ -38,7 +38,7 @@ namespace Demo
                 _ => MessageLoop.Instance.PostMessage(new QuitMessage())
             );
 
-            var label = new Label( wg[2], new Point(2,5), "Edit me", width: 15);
+            var label = new Label( wg[2], new Point(2,5), "Edit me", width: 15, centered: true);
             var leLabel = new LineEdit( wg[2], new Point(2,6), 15, "Edit me");
             leLabel.OnTextChanged +=
                 (_, text, __) => label.Text = text;

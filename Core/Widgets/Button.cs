@@ -17,22 +17,22 @@ namespace Conwid.Core.Widgets
         readonly Color ActiveBorderButtonColor = new Color()
         {
             Foreground = ConsoleColor.White,
-            Background = ConsoleColor.DarkGray
+            Background = ConsoleColor.Black
         };
         readonly Color InactiveBorderButtonColor = new Color()
         {
             Foreground = ConsoleColor.Gray,
-            Background = ConsoleColor.DarkGray
+            Background = ConsoleColor.Black
         };
         readonly Color ActiveTextButtonColor = new Color()
         {
             Foreground = ConsoleColor.White,
-            Background = ConsoleColor.Black
+            Background = ConsoleColor.DarkGray
         };
         readonly Color InactiveTextButtonColor = new Color()
         {
             Foreground = ConsoleColor.Gray,
-            Background = ConsoleColor.Black
+            Background = ConsoleColor.DarkGray
         };
 
         #endregion // Constants
@@ -81,13 +81,7 @@ namespace Conwid.Core.Widgets
         }
 
         public override void Draw(DrawSpace ds)
-        {
-            // horizontal alignment
-            var outStr = Text;
-            var delta = Area.Width-2 - Text.Length;
-            if( delta > 0 )
-                outStr = outStr.PadLeft(Text.Length + delta/2).PadRight(Area.Width-2);
-            
+        {            
             // border
             ds.Color = IsActive() ? ActiveBorderButtonColor : InactiveBorderButtonColor;
             // height is odd
@@ -105,7 +99,7 @@ namespace Conwid.Core.Widgets
                 
             // text
             ds.Color = IsActive() ? ActiveTextButtonColor : InactiveTextButtonColor;
-            ds.PutString(new Point(1,Area.Height/2), outStr, Area.Width-2);
+            ds.PutString(new Point(1,Area.Height/2), Text, Area.Width-2, centered: true);
             if( Area.Height > 3 )
             {
                 // we need to erase spare space

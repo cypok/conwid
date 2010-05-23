@@ -107,7 +107,6 @@ namespace Conwid.Core.Widgets
             
             ds.Color = IsActive() ? ActiveTextCheckBoxColor : InactiveTextCheckBoxColor;
             var outText = " " + Text;
-            outText = outText.PadRight(Area.Width-1);
 
             ds.PutString(new Point(1,0), outText, Area.Width-1);
         }

@@ -37,6 +37,16 @@ namespace Conwid.Core.Widgets
                 Invalidate();
             }
         }
+        bool centered;
+        public bool Centered
+        { 
+            get { return centered; }
+            set
+            {
+                centered = value;
+                Invalidate();
+            }
+        }
 
         #endregion // Fields & Properties
         
@@ -44,10 +54,11 @@ namespace Conwid.Core.Widgets
 
         #endregion // Events
 
-        public Label(UIElement parent, Point pos, string text, int? width = null) :
+        public Label(UIElement parent, Point pos, string text, int? width = null, bool centered = false) :
             base(parent, new Rectangle(pos, new Size( width ?? 2+text.Length, 1)))
         {
             this.text = text;
+            this.centered = centered;
         }
 
         // Handles:
@@ -60,8 +71,7 @@ namespace Conwid.Core.Widgets
         {
             ds.Color = IsActive() ? ActiveLabelColor : InactiveLabelColor;
 
-            var outText = Text.PadRight(Area.Width);
-            ds.PutString(new Point(0,0), outText, Area.Width);
+            ds.PutString(new Point(0,0), Text, Area.Width, Centered);
         }
     }
 }

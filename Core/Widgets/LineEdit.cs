@@ -119,7 +119,6 @@ namespace Conwid.Core.Widgets
             var outText = Text.Substring( TextRolling, Math.Min(Area.Width, Text.Length-TextRolling) );
             if( IsActive() && outText.Length < Area.Width )
                 outText += "_";
-            outText = outText.PadRight(Area.Width);
 
             ds.PutString(Point.Empty, outText, Area.Width);
         }

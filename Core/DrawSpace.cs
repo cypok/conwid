@@ -170,14 +170,26 @@ namespace Conwid.Core
             DrawPatternLine(from, to, ch.ToString());
         }
 
-        public void PutString(Point from, string str, int maxLength = 0)
+        public void PutString(Point from, string str, int length = 0, bool centered = false)
         {
-            string cutStr;
-            if( maxLength != 0 && str.Length > maxLength)
-                cutStr = str.Substring(0, maxLength-1) + "~";
+            string outStr;
+            if( length != 0 )
+            {
+                if( str.Length > length )
+                {
+                    outStr = str.Substring(0, length-1) + "~";
+                }
+                else if( centered )
+                {
+                    var delta = length - str.Length;
+                    outStr = str.PadLeft(length - delta/2).PadRight(length);
+                }
+                else
+                    outStr = str.PadRight(length);
+            }
             else
-                cutStr = str;
-            DrawPatternLine(from, from + new Size(cutStr.Length-1,0), cutStr);
+                outStr = str;
+            DrawPatternLine(from, from + new Size(outStr.Length-1,0), outStr);
         }
 
         public void DrawRectangle(Rectangle rect, char ch)
