@@ -17,7 +17,7 @@ namespace Conwid.Core.Widgets
         readonly Color ActiveBorderButtonColor = new Color()
         {
             Foreground = ConsoleColor.White,
-            Background = ConsoleColor.DarkGray
+            Background = ConsoleColor.Black
         };
         readonly Color InactiveBorderButtonColor = new Color()
         {
@@ -32,7 +32,7 @@ namespace Conwid.Core.Widgets
         readonly Color InactiveTextButtonColor = new Color()
         {
             Foreground = ConsoleColor.Gray,
-            Background = ConsoleColor.Black
+            Background = ConsoleColor.DarkGray
         };
 
         #endregion // Constants

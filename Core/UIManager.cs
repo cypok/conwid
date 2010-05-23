@@ -42,16 +42,13 @@ namespace Conwid.Core
         private List<Child> children = new List<Child>();
         UIManager<UIManager<Child>> parent;
 
-        private List<int> children_order = new List<int>();
+        private List<Child> children_order = new List<Child>();
 
         public Child ActiveElement
         {
             get
             {
-                if( children_order.IsEmpty() )
-                    return null;
-                var i = children_order.First();
-                return children[i];
+                return children_order.FirstOrDefault();
             }
         }
 
@@ -106,15 +103,11 @@ namespace Conwid.Core
 
         private IEnumerable<Child> LowerElements(Child c)
         {
-            var ind = children.IndexOf(c);
-            return children_order.FindAll(i => children_order.IndexOf(i) > children_order.IndexOf(ind))
-                                 .Select(i => children[i]);
+            return children_order.FindAll(x => children_order.IndexOf(x) > children_order.IndexOf(c));
         }
         private IEnumerable<Child> UpperElements(Child c)
         {
-            var ind = children.IndexOf(c);
-            return children_order.FindAll(i => children_order.IndexOf(i) < children_order.IndexOf(ind))
-                                 .Select(i => children[i]);
+            return children_order.FindAll(x => children_order.IndexOf(x) < children_order.IndexOf(c));
         }
         #endregion // Collection Helpers
 
@@ -142,7 +135,7 @@ namespace Conwid.Core
                     var oldActive = ActiveElement;
 
                     children.Add(e);
-                    children_order.Insert(0, children.IndexOf(e));
+                    children_order.Add(e);//Insert(0, e);
 
                     if( oldActive != null)
                         oldActive.Invalidate();
@@ -150,11 +143,8 @@ namespace Conwid.Core
                 }
                 else if(msg is RemoveUIElementMessage<Child>)
                 {
-                    children_order.Remove(children.IndexOf(e));
-                    var orderedChildren = children_order.Select( i => children[i] ).ToList();
+                    children_order.Remove(e);
                     children.Remove(e);
-                    // after some element is removed, list of indices should be re-created, because indices changed
-                    children_order = orderedChildren.Select( x => children.IndexOf(x) ).ToList();
 
                     e.Invalidate();
                     if( ActiveElement != null)
@@ -193,7 +183,7 @@ namespace Conwid.Core
             }
             else if(msg is SwitchUIElementMessage && !children.IsEmpty())
             {
-                var oldActiveIndex = children_order[0];
+                var oldActiveIndex = children.IndexOf(children_order[0]);
                 int newActiveIndex;
                 if((msg as SwitchUIElementMessage).Next)
                 {
@@ -204,7 +194,7 @@ namespace Conwid.Core
                     newActiveIndex = (oldActiveIndex - 1 + children_order.Count)%children_order.Count; // additional `+ children_order.Count` needed to exclude negative numbers
                 }
                 
-                children_order.MoveToBeginning( children_order.IndexOf(newActiveIndex) );
+                children_order.MoveToBeginning( children_order.IndexOf(children[newActiveIndex]) );
 
                 children[oldActiveIndex].Invalidate();
                 children[newActiveIndex].Invalidate();
