@@ -10,7 +10,10 @@ namespace Conwid.Core
     
     public abstract class Widget : UIElement
     {
-        public Widget(Rectangle area) : base(area) {}
+        public Widget(UIElement parent, Rectangle area) : base(area)
+        {
+            Parent = parent;
+        }
 
         UIManager<Widget> parent;
         public override UIElement Parent
@@ -30,8 +33,8 @@ namespace Conwid.Core
                         parent.SendMessage( new RemoveUIElementMessage<Widget>(this) );
                 
                     parent = newParent;
-                    if(parent != null)
-                        parent.SendMessage( new AddUIElementMessage<Widget>(this) );
+                    if(newParent != null)
+                        newParent.SendMessage( new AddUIElementMessage<Widget>(this) );
                 }
                 else
                 {

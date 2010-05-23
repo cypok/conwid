@@ -59,7 +59,7 @@ namespace Conwid.Core.Widgets
 
         #endregion // Events
 
-        public LineEdit(Point pos, int width, string text = "") : base(new Rectangle(pos, new Size(width, 1)))
+        public LineEdit(UIElement parent, Point pos, int width, string text = "") : base(parent, new Rectangle(pos, new Size(width, 1)))
         {
             this.text = text;
             TextRolling = 0;

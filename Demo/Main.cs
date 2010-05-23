@@ -24,27 +24,27 @@ namespace Demo
             };
 
 
-            new LineEdit( new Point(1,1), 15, "Hello, World!") { Parent = wg[0] };
-            new LineEdit( new Point(1,3), 4, "0123456789") { Parent = wg[0] };
-            new CheckBox( new Point(2,5), "nsu student") { Parent = wg[0] };
-            new Button( new Point(1,1), "Push Me", height: 1) { Parent = wg[1]};
-            new Button( new Point(1,3), "Push Me", height: 1, width: 7) { Parent = wg[1]};
-            new Button( new Point(1,5), "Push Me", height: 1, width: 13) { Parent = wg[1]};
-            new Button( new Point(1,7), "Big Push Me") { Parent = wg[1]};
-            new Button( new Point(1,10), "Bigger Push Me", height: 5, width: 22) { Parent = wg[1]};
+            new LineEdit( wg[0], new Point(1,1), 15, "Hello, World!");
+            new LineEdit( wg[0], new Point(1,3), 4, "0123456789");
+            new CheckBox( wg[0], new Point(2,5), "nsu student");
+            new Button( wg[1], new Point(1,1), "Push Me", height: 1);
+            new Button( wg[1], new Point(1,3), "Push Me", height: 1, width: 7);
+            new Button( wg[1], new Point(1,5), "Push Me", height: 1, width: 13);
+            new Button( wg[1], new Point(1,7), "Big Push Me");
+            new Button( wg[1], new Point(1,10), "Bigger Push Me", height: 5, width: 22);
 
-            var exitButton = new Button(new Point(1,1), " E X I T ", height: 3) { Parent = wg[2] };
+            var exitButton = new Button( wg[2], new Point(1,1), " E X I T ", height: 3);
             exitButton.OnPressed += (
                 _ => MessageLoop.Instance.PostMessage(new QuitMessage())
             );
 
-            var label = new Label( new Point(2,5), "Edit me", width: 15) { Parent = wg[2] };
-            var leLabel = new LineEdit( new Point(2,6), 15, "Edit me") { Parent = wg[2] };
+            var label = new Label( wg[2], new Point(2,5), "Edit me", width: 15);
+            var leLabel = new LineEdit( wg[2], new Point(2,6), 15, "Edit me");
             leLabel.OnTextChanged +=
                 (_, text, __) => label.Text = text;
             
-            var cbRuby = new CheckBox( new Point(3,8), "love to Ruby", state: true) { Parent = wg[2] };
-            var cbCSharp = new CheckBox( new Point(3,9), "love to C#", state: false) { Parent = wg[2] };
+            var cbRuby = new CheckBox( wg[2], new Point(3,8), "love to Ruby", state: true);
+            var cbCSharp = new CheckBox( wg[2], new Point(3,9), "love to C#", state: false);
             cbRuby.OnStateChanged +=
                 (_, state, __) => cbCSharp.State = !state;
             cbCSharp.OnStateChanged +=
