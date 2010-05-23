@@ -40,7 +40,7 @@ namespace Conwid.Core
 
         readonly ConsoleKeyInfo ExitKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Q, control: true, shift: false, alt: false);
 
-        Queue<MesssageContainer> queue = new Queue<MesssageContainer>();
+        List<MesssageContainer> queue = new List<MesssageContainer>();
         UIManager<UIManager<Widget>> widgetManager = new UIManager<UIManager<Widget>>();
         bool stopped;
         int retcode;
@@ -51,8 +51,15 @@ namespace Conwid.Core
         {
             if(receiver == null)
                 throw new ArgumentNullException("receiver");
+            
+            //if( msg is GlobalRedrawMessage )
+            //{
 
-            queue.Enqueue( new MesssageContainer(receiver, msg) );
+            //}
+            //else
+            //{
+                queue.PushBack( new MesssageContainer(receiver, msg) );
+            //}
         }
 
         public void SendMessage(IMessageHandler receiver, IMessage msg)
@@ -103,7 +110,7 @@ namespace Conwid.Core
                 if(queue.IsEmpty())
                     continue;
 
-                var mc = queue.Dequeue();
+                var mc = queue.PopFront();
                 if(mc.receiver.IsEnabled)
                     SendMessage(mc.receiver, mc.message);
             }

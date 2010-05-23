@@ -15,13 +15,23 @@ namespace Conwid.Core
         {
             var item = list.ElementAt(index);
             list.RemoveAt(index);
-            list.Insert(list.Count, item);
+            list.PushBack(item);
         }
         public static void MoveToBeginning<T>(this IList<T> list, int index)
         {
             var item = list.ElementAt(index);
             list.RemoveAt(index);
             list.Insert(0, item);
+        }
+        public static void PushBack<T>(this IList<T> list, T item)
+        {
+            list.Insert(list.Count, item);
+        }
+        public static T PopFront<T>(this IList<T> list)
+        {
+            var item = list[0];
+            list.RemoveAt(0);
+            return item;
         }
     }
 }
