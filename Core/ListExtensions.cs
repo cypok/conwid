@@ -15,20 +15,51 @@ namespace Conwid.Core
         }
 
         public delegate void InPlaceAction<T>(ref T obj);
+        public delegate void InPlaceAction<T1, T2>(ref T1 obj1, T2 obj2);
         /// <summary>
-        /// Returns new IEnumerable by taking a copy of each element of collection,
-        /// applying an action to the copy, and collecting copies, modified by this action.
+        /// Returns a new IEnumerable by taking a copy of each element of collection,
+        /// applying an action to the copy, and collecting the copies, modified by this action.
         /// </summary>
         public static IEnumerable<T> SelectFromCopies<T>(this IEnumerable<T> collection, InPlaceAction<T> action)
             where T:struct
         {
             return collection.Select(
                 x => {
-                    var copy = x;
-                    action(ref copy);
-                    return copy;
+                    action(ref x);
+                    return x;
                 }
             );
+        }
+
+        /// <summary>
+        /// Returns a new IEnumerable by taking for each pair of items from two collections 
+        /// the copy of item of first collection, applying an action to a copy and an item
+        /// of second collection, and collecting the copies, modified by this action
+        /// </summary>
+        public static IEnumerable<T1> SelectFromPairs<T1, T2>(this IEnumerable<T1> first, IEnumerable<T2> second, InPlaceAction<T1, T2> action)
+            where T1:struct
+        {
+            foreach(var item_of_first in first)
+            {
+                foreach(var item_of_second in second)
+                {
+                    var copy = item_of_first;
+                    action(ref copy, item_of_second);
+                    yield return copy;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the first element of collection if it isn't empty,
+        /// and given object if it is
+        /// </summary>
+        public static T FirstOrGiven<T>(this IEnumerable<T> collection, T given)
+        {
+            if(collection.IsEmpty())
+                return given;
+            else
+                return collection.First();
         }
         
         #endregion //IEnumerable enhancements

@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace Conwid.Core.Messages
 {
@@ -10,39 +11,53 @@ namespace Conwid.Core.Messages
         public int Code { get; private set; }
         public QuitMessage(int code = 0) { Code = code; }
     }
+
     public sealed class SetTitleMessage : SystemMessage
     {
         public string Title { get; private set; }
         public SetTitleMessage(string title) { Title = title; }
     }
 
-    internal class UIElementMessage<Element> : SystemMessage 
+    internal abstract class UIElementMessage<Element>  : SystemMessage
         where Element : UIElement
     {
         public Element UIElement { get; private set; }
         public UIElementMessage(Element e) { UIElement = e; }
     }
+
     internal sealed class AddUIElementMessage<Element> : UIElementMessage<Element>
         where Element : UIElement
     {
         public AddUIElementMessage(Element e) : base(e) {}
     }
+
     internal sealed class RemoveUIElementMessage<Element> : UIElementMessage<Element>
         where Element : UIElement
     {
         public RemoveUIElementMessage(Element e) : base(e) {}
     }
+
+
     internal sealed class InvalidateUIElementMessage<Element> : UIElementMessage<Element>
         where Element : UIElement
     {
         public Rectangle? Rect { get; private set; }
         public InvalidateUIElementMessage(Element e, Rectangle? rect = null) : base(e) { Rect = rect; }
     }
+
     internal sealed class GlobalRedrawMessage : SystemMessage
     {
-        public Rectangle? Rect { get; private set; }
-        public GlobalRedrawMessage(Rectangle? rect = null) { Rect = rect; }
+        public IEnumerable<Rectangle> Rects { get; private set; }
+        public GlobalRedrawMessage(IEnumerable<Rectangle> rects) { Rects = rects; }
+        public GlobalRedrawMessage(Rectangle? rect = null)
+        {
+            if(rect != null)
+                Rects = new Rectangle[]{rect.Value};
+            else
+                Rects = new Rectangle[0];
+        }
     }
+
     internal sealed class SwitchUIElementMessage : SystemMessage
     {
         public bool Next { get; private set; }

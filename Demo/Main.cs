@@ -18,9 +18,9 @@ namespace Demo
 
             var wg = new WidgetGroup[]
             {
-                new WidgetGroup(theLoop.WidgetManager, new Rectangle(3,2,45,12), "First"),
-                new WidgetGroup(theLoop.WidgetManager, new Rectangle(12,6,45,18)),
-                new WidgetGroup(theLoop.WidgetManager, new Rectangle(21,10,45,12), "With really long long long name"),
+                new WidgetGroup(null, new Rectangle(3,2,45,12), "First"),
+                new WidgetGroup(null, new Rectangle(12,6,45,18)),
+                new WidgetGroup(null, new Rectangle(21,10,45,12), "With really long long long name"),
             };
             var hidden = new WidgetGroup(null, new Rectangle(1, 10, 8, 10), "hidden");
 
@@ -62,7 +62,10 @@ namespace Demo
 
             more.OnPressed += _ => hidden.Parent = theLoop.WidgetManager;
 
-            Console.CursorVisible = false;
+            // if you first add widgets to widget groups, and then add widget groups to widget manager,
+            // then there will be no unnecessary redraw at all
+            foreach( var g in wg )
+                g.Parent = theLoop.WidgetManager;
 
             theLoop.Run();
 

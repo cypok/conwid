@@ -204,11 +204,8 @@ namespace Conwid.Core
             {
                 if(Parent != null)
                     throw new InvalidOperationException("Only top-level UIManagers can handle GlobalRedrawMessage");
-                var rect = (msg as GlobalRedrawMessage).Rect;
-                var ds = DrawSpace.Screen;
-                if(rect!=null)
-                    ds = ds.Restrict(rect.Value);
-                Draw(ds);
+                var rects = (msg as GlobalRedrawMessage).Rects;
+                Draw(DrawSpace.Screen.Restrict(rects));
             }
         }
 

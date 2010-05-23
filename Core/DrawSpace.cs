@@ -115,10 +115,18 @@ namespace Conwid.Core
             return new DrawSpace( actualAllowedRects, this.deniedRects.Concat(actualDenied), refPoint );
         }
 
-        public DrawSpace Restrict(Rectangle restricted_area)
+        public DrawSpace Restrict(IEnumerable<Rectangle> restricted_areas)
         {
-            var new_allowed = allowedRects.SelectFromCopies( (ref Rectangle x) => x.Intersect(restricted_area) );
-            return new DrawSpace(new_allowed, deniedRects, referencePoint);
+            IEnumerable<Rectangle> new_allowed;
+            if(restricted_areas.IsEmpty())
+                // If no restriction - leave allowed rect the same
+                new_allowed = this.allowedRects;
+            else
+                // Otherwise intersect each allowed rect with each restricted area
+                new_allowed =
+                    restricted_areas.SelectFromPairs( allowedRects,
+                                                      (ref Rectangle x, Rectangle y) => x.Intersect(y) );
+            return new DrawSpace(new_allowed, this.deniedRects, this.referencePoint);
         }
 
         public bool IsAffecting(Rectangle rect)
