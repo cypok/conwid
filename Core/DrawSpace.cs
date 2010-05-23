@@ -10,6 +10,13 @@ namespace Conwid.Core
     {
         public ConsoleColor Foreground { get; set; }
         public ConsoleColor Background { get; set; }
+
+        public Color() {}
+        public Color(ConsoleColor fg, ConsoleColor bg)
+        {
+            Foreground = fg;
+            Background = bg;
+        }
     }
 
     public sealed class DrawSpace
