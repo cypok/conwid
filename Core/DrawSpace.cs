@@ -24,12 +24,12 @@ namespace Conwid.Core
         #region Fields & Properties
 
         private Point referencePoint;
-        private Rectangle allowedRect;
+        private IEnumerable<Rectangle> allowedRects;
         private IEnumerable<Rectangle> deniedRects;
 
-        public Size Size
+        public static Size ScreenSize
         {
-            get { return allowedRect.Size; }
+            get { return new Size(Console.WindowWidth, Console.WindowHeight); }
         }
 
         #endregion // Fields & Properties
@@ -61,14 +61,14 @@ namespace Conwid.Core
             
         #region Constructors
             
-        public DrawSpace(Rectangle allowed, IEnumerable<Rectangle> denied = null, Point? refPoint = null)
+        public DrawSpace(IEnumerable<Rectangle> allowed, IEnumerable<Rectangle> denied = null, Point? refPoint = null)
         {
             if(allowed == null)
                 throw new ArgumentNullException();
 
-            allowedRect = allowed;
+            allowedRects = allowed;
             deniedRects = denied ?? new Rectangle[0];
-            referencePoint = refPoint ?? allowedRect.Location;
+            referencePoint = refPoint ?? Point.Empty;
 
             Color = DefaultColor;
         }
@@ -81,46 +81,64 @@ namespace Conwid.Core
         {
             get
             {
-                var screenArea = new Rectangle(Point.Empty, new Size(Console.WindowWidth, Console.WindowHeight));
-                return new DrawSpace(screenArea);
+                var screenArea = new Rectangle(Point.Empty, ScreenSize);
+                return new DrawSpace( new Rectangle[]{screenArea} );
             }
         }
 
         public DrawSpace CreateSubSpace(Rectangle? allowed, IEnumerable<Rectangle> denied = null)
         {
-            Rectangle actualAllowed = allowed ?? this.allowedRect;
-            // if null given as allowed, it means leave the same allowedRect, so no offset needed
-            var refPoint = this.referencePoint;
+            // if null given as allowed, it means leave the same allowedRects
+            Point refPoint;
+            IEnumerable<Rectangle> actualAllowedRects;
             if(allowed != null)
             {
+                var actualAllowed = allowed.Value; // take value from Nullable<Rectangle>
                 actualAllowed.Offset( this.referencePoint );
+                
                 refPoint = actualAllowed.Location;
+                actualAllowedRects = this.allowedRects.Select(
+                    x => {
+                        var allowedRect = x;
+                        allowedRect.Intersect(actualAllowed);
+                        return allowedRect;
+                    }
+                );
+            }
+            else
+            {
+                refPoint = this.referencePoint;
+                actualAllowedRects = this.allowedRects;
             }
 
-            actualAllowed.Intersect( this.allowedRect );
             
             var actualDenied = (denied ?? new Rectangle[0]).Select(
                 x => {
                     var ad = x;
-                    ad.Offset( this.referencePoint );
+                    ad.Offset(this.referencePoint);
                     return ad;
                 }
             );
                 
-            return new DrawSpace( actualAllowed, this.deniedRects.Concat(actualDenied), refPoint );
+            return new DrawSpace( actualAllowedRects, this.deniedRects.Concat(actualDenied), refPoint );
         }
 
         public DrawSpace Restrict(Rectangle restricted_area)
         {
-            var new_allowed = allowedRect;
-            new_allowed.Intersect(restricted_area);
+            var new_allowed = allowedRects.Select(
+                x => {
+                    var allowed = x;
+                    x.Intersect(restricted_area);
+                    return x;
+                }
+            );
             return new DrawSpace(new_allowed, deniedRects, referencePoint);
         }
 
         public bool IsAffecting(Rectangle rect)
         {
             rect.Offset( this.referencePoint );
-            return rect.IntersectsWith( allowedRect );
+            return allowedRects.Any(x => rect.IntersectsWith(x));
         }
         
         #endregion // Creating Helpers
@@ -130,7 +148,7 @@ namespace Conwid.Core
         public void PutCharacter(Point point, char ch)
         {
             point.Offset( referencePoint );
-            if( allowedRect.Contains(point) && deniedRects.All( x => ! x.Contains(point) ) )
+            if( allowedRects.Any( x => x.Contains(point) ) && deniedRects.All( x => ! x.Contains(point) ) )
             {
                 Console.SetCursorPosition(point.X, point.Y);
                 Console.ForegroundColor = Color.Foreground;

@@ -69,7 +69,7 @@ namespace Conwid.Core
         /// Creates top-level UIManager
         /// </summary>
         internal UIManager(ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
-            : base( new Rectangle(Point.Empty, DrawSpace.Screen.Size) )
+            : base( new Rectangle(Point.Empty, DrawSpace.ScreenSize) )
         {
             if (topLevelManager != null)
                 throw new InvalidOperationException("Only one top-level UIManager allowed");
@@ -107,6 +107,7 @@ namespace Conwid.Core
         }
         private IEnumerable<Child> UpperElements(Child c)
         {
+            // TODO: Where with index
             return children_order.FindAll(x => children_order.IndexOf(x) < children_order.IndexOf(c));
         }
         #endregion // Collection Helpers
