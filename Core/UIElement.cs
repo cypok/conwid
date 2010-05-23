@@ -11,12 +11,30 @@ namespace Conwid.Core
         abstract public UIElement Parent { get; set; }
         
         // TODO: setter notifying WidgetManager about moving and resizing
-        public Rectangle Area{ get; set; }
+        private Rectangle area;
+        public Rectangle Area
+        {
+            get { return area; }
+            set
+            {
+                if(Parent != null)
+                {
+                    Parent.Invalidate(this.area);
+                    Parent.Invalidate(value);
+                }
+                this.area = value;
+            }
+        }
         public Size Size
         {
             get { return Area.Size; }
-            protected set { Area = new Rectangle(Area.Location, value); }
+            set { Area = new Rectangle(Area.Location, value); }
         }
+        public Point Location
+        {
+            get { return Area.Location; }
+            set { Area = new Rectangle(value, Area.Size); }
+        }   
 
         public bool IsEnabled { get; protected set; }
         
@@ -25,7 +43,7 @@ namespace Conwid.Core
             if(area == null)
                 throw new ArgumentNullException();
 
-            Area = area;
+            this.area = area;
             IsEnabled = false;
         }
         

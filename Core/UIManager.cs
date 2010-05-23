@@ -23,6 +23,11 @@ namespace Conwid.Core
 
         public static readonly ConsoleKeyInfo CloseKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.W, control: true, shift: false, alt: false);
 
+        public static readonly ConsoleKeyInfo UpKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.UpArrow, control: true, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo DownKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.DownArrow, control: true, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo LeftKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.LeftArrow, control: true, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo RightKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.RightArrow, control: true, shift: false, alt: false);
+
         readonly Color ActiveFrameColor = new Color()
         {
             Foreground = ConsoleColor.White,
@@ -175,6 +180,23 @@ namespace Conwid.Core
                 {
                     // Close it, if it is not top-level
                     Parent = null;
+                }
+                // Moving: if not top-level
+                else if(keyInfo.EqualsTo(UpKeyInfo) && Parent != null)
+                {
+                    Location = Location + new Size(0, -1);
+                }
+                else if(keyInfo.EqualsTo(DownKeyInfo) && Parent != null)
+                {
+                    Location = Location + new Size(0, 1);
+                }
+                else if(keyInfo.EqualsTo(LeftKeyInfo) && Parent != null)
+                {
+                    Location = Location + new Size(-1, 0);
+                }
+                else if(keyInfo.EqualsTo(RightKeyInfo) && Parent != null)
+                {
+                    Location = Location + new Size(1, 0);
                 }
                 else if(ActiveElement != null)
                 {
