@@ -108,6 +108,7 @@ namespace Conwid.Core
             while(!stopped);
 
             queue.Clear();
+            Console.Clear();
             return retcode;
         }
     }

@@ -40,6 +40,8 @@ namespace Conwid.Core
         private List<Child> children = new List<Child>();
         UIManager<UIManager<Child>> parent;
 
+        private List<int> children_order = new List<int>();
+
         private static UIElement topLevelManager; // used to avoid creation of more than one top-level UIManager
 
         private ConsoleKeyInfo nextElementKeyInfo;
@@ -91,15 +93,25 @@ namespace Conwid.Core
 
         private IEnumerable<Child> LowerElements(Child c)
         {
-            return children.FindAll(x => children.IndexOf(x) > children.IndexOf(c));
+            var ind = children.IndexOf(c);
+            return children_order.FindAll(i => children_order.IndexOf(i) > children_order.IndexOf(ind))
+                                 .Select(i => children[i]);
         }
         private IEnumerable<Child> UpperElements(Child c)
         {
-            return children.FindAll(x => children.IndexOf(x) < children.IndexOf(c));
+            var ind = children.IndexOf(c);
+            return children_order.FindAll(i => children_order.IndexOf(i) < children_order.IndexOf(ind))
+                                 .Select(i => children[i]);
         }
         public Child ActiveElement
         {
-            get { return children.FirstOrDefault(); }
+            get
+            {
+                if( children_order.IsEmpty() )
+                    return null;
+                var i = children_order.First();
+                return children[i];
+            }
         }
 
         #endregion // Collection Helpers
@@ -124,12 +136,15 @@ namespace Conwid.Core
                 {
                     if(children.Contains(e))
                         throw new InvalidOperationException("Element already added to UIManager");
-                    children.Insert(0, e);
+                    //children.Insert(0, e);
+                    children.Add(e);
+                    children_order.Insert(0, children.IndexOf(e));
                     // TODO: invalidate only affected area
                     e.Invalidate();
                 }
                 else if(msg is RemoveUIElementMessage<Child>)
                 {
+                    children_order.Remove(children.IndexOf(e));
                     children.Remove(e);
                     // TODO: invalidate only affected area
                     Invalidate();
@@ -171,14 +186,21 @@ namespace Conwid.Core
             }
             else if(msg is SwitchUIElementMessage && !children.IsEmpty())
             {
+                var oldActiveIndex = children_order[0];
+                int newActiveIndex;
                 if((msg as SwitchUIElementMessage).Next)
-                    children.MoveToEnding(0);
+                {
+                    newActiveIndex = (oldActiveIndex + 1)%children_order.Count;
+                }
                 else
-                    children.MoveToBeginning(children.Count - 1);
+                {
+                    newActiveIndex = (oldActiveIndex - 1 + children_order.Count)%children_order.Count; // additional `+ children_order.Count` needed to exclude negative numbers
+                }
+                
+                children_order.MoveToBeginning( children_order.IndexOf(newActiveIndex) );
 
-                foreach (var e in children)
-                    e.Invalidate();
-
+                children[oldActiveIndex].Invalidate();
+                children[newActiveIndex].Invalidate();
             }
             else if(msg is GlobalRedrawMessage)
             {
