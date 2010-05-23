@@ -14,7 +14,7 @@ namespace Conwid.Core
         where Child : UIElement
     {
         #region Constants
-
+        
         public static readonly ConsoleKeyInfo TopLevelNextElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: false, alt: false);
         public static readonly ConsoleKeyInfo TopLevelPrevElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: true, alt: false);
 
@@ -61,6 +61,8 @@ namespace Conwid.Core
         private ConsoleKeyInfo prevElementKeyInfo;
 
         public string Title { get; private set; }
+
+        private static bool firstDraw = true;
         
         #endregion // Fields and Properties
 
@@ -149,7 +151,10 @@ namespace Conwid.Core
                 else if(msg is RemoveUIElementMessage<Child>)
                 {
                     children_order.Remove(children.IndexOf(e));
+                    var orderedChildren = children_order.Select( i => children[i] ).ToList();
                     children.Remove(e);
+                    // after some element is removed, list of indices should be re-created, because indices changed
+                    children_order = orderedChildren.Select( x => children.IndexOf(x) ).ToList();
 
                     e.Invalidate();
                     if( ActiveElement != null)
@@ -160,9 +165,7 @@ namespace Conwid.Core
                     Rectangle? rect = (msg as InvalidateUIElementMessage<Child>).Rect;
                     Rectangle actualInvalidRect = rect ?? new Rectangle(Point.Empty, e.Size);
                     actualInvalidRect.Offset(e.Area.Location);
-                    {
-                        Invalidate(actualInvalidRect);
-                    }
+                    Invalidate(actualInvalidRect);
                 }
             }
             else if(msg is KeyPressedMessage)
@@ -301,8 +304,13 @@ namespace Conwid.Core
             if(Parent != null)
                 Parent.PostMessage( new InvalidateUIElementMessage<UIManager<Child>>(this, rect) );
             else
+            {
                 // else I'm the big boss :)
+                if(firstDraw)
+                    rect = null; // on first draw draw itself entirely
+                firstDraw = false;
                 this.PostMessage(new GlobalRedrawMessage(rect));
+            }
         }
 
         #endregion // IUIElement Properties & Methods
