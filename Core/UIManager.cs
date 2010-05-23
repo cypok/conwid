@@ -207,7 +207,7 @@ namespace Conwid.Core
                 var rect = (msg as GlobalRedrawMessage).Rect;
                 var ds = DrawSpace.Screen;
                 if(rect!=null)
-                    ds = ds.Restrict(rect ?? Rectangle.Empty);
+                    ds = ds.Restrict(rect.Value);
                 Draw(ds);
             }
         }

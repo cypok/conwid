@@ -77,12 +77,17 @@ namespace Conwid.Core
 
         #region Creating Helpers
 
+        private static DrawSpace screen;
         public static DrawSpace Screen
         {
             get
             {
-                var screenArea = new Rectangle(Point.Empty, ScreenSize);
-                return new DrawSpace( new Rectangle[]{screenArea} );
+                if(screen == null)
+                {
+                    var screenArea = new Rectangle(Point.Empty, ScreenSize);
+                    screen = new DrawSpace( new Rectangle[]{screenArea} );
+                }
+                return screen;
             }
         }
 
@@ -97,13 +102,7 @@ namespace Conwid.Core
                 actualAllowed.Offset( this.referencePoint );
                 
                 refPoint = actualAllowed.Location;
-                actualAllowedRects = this.allowedRects.Select(
-                    x => {
-                        var allowedRect = x;
-                        allowedRect.Intersect(actualAllowed);
-                        return allowedRect;
-                    }
-                );
+                actualAllowedRects = this.allowedRects.SelectFromCopies( (ref Rectangle x) => x.Intersect(actualAllowed) );
             }
             else
             {
@@ -111,27 +110,14 @@ namespace Conwid.Core
                 actualAllowedRects = this.allowedRects;
             }
 
-            
-            var actualDenied = (denied ?? new Rectangle[0]).Select(
-                x => {
-                    var ad = x;
-                    ad.Offset(this.referencePoint);
-                    return ad;
-                }
-            );
+            var actualDenied = (denied ?? new Rectangle[0]).SelectFromCopies( (ref Rectangle x) => x.Offset(this.referencePoint) );
                 
             return new DrawSpace( actualAllowedRects, this.deniedRects.Concat(actualDenied), refPoint );
         }
 
         public DrawSpace Restrict(Rectangle restricted_area)
         {
-            var new_allowed = allowedRects.Select(
-                x => {
-                    var allowed = x;
-                    x.Intersect(restricted_area);
-                    return x;
-                }
-            );
+            var new_allowed = allowedRects.SelectFromCopies( (ref Rectangle x) => x.Intersect(restricted_area) );
             return new DrawSpace(new_allowed, deniedRects, referencePoint);
         }
 
