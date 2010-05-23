@@ -51,7 +51,7 @@ namespace Conwid.Core.Widgets
         #endregion // Events
 
         public Label(UIElement parent, Point pos, string text, int? width = null, bool centered = false, Color color = null) :
-            base(parent, new Rectangle(pos, new Size( width ?? 2+text.Length, 1)))
+            base(parent, new Rectangle(pos, new Size( width ?? text.Length, 1)))
         {
             this.text = text;
             this.centered = centered;
