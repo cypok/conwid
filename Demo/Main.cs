@@ -24,14 +24,18 @@ namespace Demo
             };
 
 
-            new LineEdit( wg[0], new Point(1,1), 15, "Hello, World!");
+            new LineEdit( wg[0], wg[0].ClientArea.Location, wg[0].ClientArea.Width, "Hello, World!");
             new LineEdit( wg[0], new Point(1,3), 4, "0123456789");
             new CheckBox( wg[0], new Point(2,5), "nsu student");
-            new Button( wg[1], new Point(1,1), "Push Me", height: 1);
+            var btTitle = new Button( wg[1], new Point(1,1), "Change title", height: 1);
             new Button( wg[1], new Point(1,3), "Push Me", height: 1, width: 7);
             new Button( wg[1], new Point(1,5), "Push Me", height: 1, width: 13);
             new Button( wg[1], new Point(1,7), "Big Push Me");
             new Button( wg[1], new Point(1,10), "Bigger Push Me", height: 5, width: 22);
+
+            btTitle.OnPressed += (
+                _ => (btTitle.Parent as WidgetGroup).Title = "Changed!"
+            );
 
             var exitButton = new Button( wg[2], new Point(1,1), " E X I T ", height: 3);
             exitButton.OnPressed += (

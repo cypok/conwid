@@ -36,6 +36,8 @@ namespace Conwid.Core
         #endregion // Constants
 
         #region Fields and Properties
+
+        public Rectangle ClientArea { get { return new Rectangle(1,1,Area.Width-2,Area.Height-2); } }
        
         private List<Child> children = new List<Child>();
         UIManager<UIManager<Child>> parent;
@@ -45,7 +47,17 @@ namespace Conwid.Core
         private ConsoleKeyInfo nextElementKeyInfo;
         private ConsoleKeyInfo prevElementKeyInfo;
 
-        public string Title { get; private set; }
+        
+        string title;
+        public string Title
+        { 
+            get { return title; }
+            set
+            {
+                title = value;
+                Invalidate();
+            }
+        }
         
         #endregion // Fields and Properties
 
@@ -70,16 +82,16 @@ namespace Conwid.Core
         /// <summary>
         /// Creates non-top-level UIManager
         /// </summary>
-        public UIManager(UIManager<UIManager<Child>> parent_, Rectangle area, string title="",
+        public UIManager(UIManager<UIManager<Child>> parent, Rectangle area, string title="",
                          ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
             : base(area)
         {
-            if (parent_ == null)
+            if (parent == null)
                 throw new ArgumentNullException("parent_");
 
-            Parent = parent_;
+            Parent = parent;
 
-            Title = title;
+            this.title = title;
 
             nextElementKeyInfo = nextElemKeyInfo ?? NormalNextElementKeyInfo;
             prevElementKeyInfo = prevElemKeyInfo ?? NormalPrevElementKeyInfo;
