@@ -28,6 +28,7 @@ namespace Demo
             new LineEdit( wg[0], new Point(1,3), 4, "0123456789");
             new CheckBox( wg[0], new Point(2,5), "nsu student");
             var more = new Button( wg[0] , new Point(1,7), "gimme more", height:1);
+            var focus = new Button( wg[0] , new Point(1,9), "focus-pocus!", height:1);
             var btTitle = new Button( wg[1], new Point(1,1), "Change title", height: 1);
             new Button( wg[1], new Point(1,3), "Push Me", height: 1, width: 7);
             var openSecret = new Button( wg[1], new Point(1,5), "Secret!", height: 1, width: 13);
@@ -65,6 +66,8 @@ namespace Demo
             };
 
             more.OnPressed += _ => hidden.Parent = theLoop.WidgetManager;
+
+            focus.OnPressed += _ => hidden.IsFocusable = !hidden.IsFocusable;
 
             // if you first add widgets to widget groups, and then add widget groups to widget manager,
             // then there will be no unnecessary redraw at all

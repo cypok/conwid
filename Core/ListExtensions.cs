@@ -61,6 +61,11 @@ namespace Conwid.Core
             else
                 return collection.First();
         }
+
+        public static bool HasSameElements<T>(this IEnumerable<T> collection, IEnumerable<T> another)
+        {
+            return collection.All( x => another.Contains(x) ) && another.All( x => collection.Contains(x) );
+        }
         
         #endregion //IEnumerable enhancements
         

@@ -47,15 +47,14 @@ namespace Conwid.Core
         public Rectangle ClientArea { get { return new Rectangle(1,1,Area.Width-2,Area.Height-2); } }
        
         private List<Child> children = new List<Child>();
+        private List<Child> children_focus_order = new List<Child>();
         UIManager<UIManager<Child>> parent;
-
-        private List<Child> children_order = new List<Child>();
 
         public Child ActiveElement
         {
             get
             {
-                return children_order.FirstOrDefault();
+                return children.FirstOrDefault(x => x.IsFocusable);
             }
         }
 
@@ -119,11 +118,11 @@ namespace Conwid.Core
 
         private IEnumerable<Child> LowerElements(Child c)
         {
-            return children_order.Where((x, i) => i > children_order.IndexOf(c));
+            return children.Where((x, i) => i > children.IndexOf(c));
         }
         private IEnumerable<Child> UpperElements(Child c)
         {
-            return children_order.Where((x, i) => i < children_order.IndexOf(c));
+            return children.Where((x, i) => i < children.IndexOf(c));
         }
         #endregion // Collection Helpers
 
@@ -151,7 +150,8 @@ namespace Conwid.Core
                     var oldActive = ActiveElement;
 
                     children.Add(e);
-                    children_order.Add(e);//Insert(0, e);
+                    if(e.IsFocusable)
+                        children_focus_order.Add(e);
 
                     if( oldActive != null)
                         oldActive.Invalidate();
@@ -159,7 +159,7 @@ namespace Conwid.Core
                 }
                 else if(msg is RemoveUIElementMessage<Child>)
                 {
-                    children_order.Remove(e);
+                    children_focus_order.Remove(e);
                     children.Remove(e);
 
                     e.Invalidate();
@@ -172,6 +172,19 @@ namespace Conwid.Core
                     Rectangle actualInvalidRect = rect ?? new Rectangle(Point.Empty, e.Size);
                     actualInvalidRect.Offset(e.Area.Location);
                     Invalidate(actualInvalidRect);
+                }
+                else if(msg is IsFocusableChangedMessage<Child>)
+                {
+                    var isFocusable = (msg as IsFocusableChangedMessage<Child>).NewValue;
+                    if(isFocusable)
+                    {
+                        if(children.Contains(e))
+                            children_focus_order.Add(e);
+                    }
+                    else
+                    {
+                        children_focus_order.Remove(e);
+                    }
                 }
             }
             else if(msg is KeyPressedMessage)
@@ -214,23 +227,27 @@ namespace Conwid.Core
                 }
                 // and if can't handle key and have no one to forward it to - nothing to do :(
             }
-            else if(msg is SwitchUIElementMessage && !children.IsEmpty())
+            else if(msg is SwitchUIElementMessage && ! children_focus_order.IsEmpty())
             {
-                var oldActiveIndex = children.IndexOf(children_order[0]);
+                var oldActiveIndex = children_focus_order.IndexOf(ActiveElement);
+                
                 int newActiveIndex;
                 if((msg as SwitchUIElementMessage).Next)
                 {
-                    newActiveIndex = (oldActiveIndex + 1)%children_order.Count;
+                    newActiveIndex = (oldActiveIndex + 1)%children_focus_order.Count;
                 }
                 else
                 {
-                    newActiveIndex = (oldActiveIndex - 1 + children_order.Count)%children_order.Count; // additional `+ children_order.Count` needed to exclude negative numbers
+                    newActiveIndex = (oldActiveIndex - 1 + children_focus_order.Count)%children_focus_order.Count; // additional `+ children_order.Count` needed to exclude negative numbers
                 }
                 
-                children_order.MoveToBeginning( children_order.IndexOf(children[newActiveIndex]) );
+                if(newActiveIndex != oldActiveIndex)
+                {
+                    children.MoveToBeginning( children.IndexOf(children_focus_order[newActiveIndex]) );
 
-                children[oldActiveIndex].Invalidate();
-                children[newActiveIndex].Invalidate();
+                    children_focus_order[oldActiveIndex].Invalidate();
+                    children_focus_order[newActiveIndex].Invalidate();
+                }
             }
             else if(msg is GlobalRedrawMessage)
             {
@@ -296,6 +313,23 @@ namespace Conwid.Core
                 return parent.ActiveElement == this && parent.IsActive;
             }
         }
+        
+        private bool isFocusable = true;
+        public override bool IsFocusable
+        {
+            // copypaste from Widget, but how to do it otherwise? :(
+            get { return isFocusable;}
+            set
+            {
+                if(value == isFocusable)
+                    return; //nothing changed
+
+                isFocusable = value;
+                if(Parent != null)
+                    Parent.SendMessage( new IsFocusableChangedMessage<UIManager<Child>>(this) );
+            }
+        }
+
 
         public override void Draw(DrawSpace ds)
         {

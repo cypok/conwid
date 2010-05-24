@@ -37,6 +37,13 @@ namespace Conwid.Core.Messages
         public RemoveUIElementMessage(Element e) : base(e) {}
     }
 
+    internal sealed class IsFocusableChangedMessage<Element> : UIElementMessage<Element>
+        where Element : UIElement
+    {
+        public bool NewValue { get; private set; }
+        public IsFocusableChangedMessage(Element e) : base(e) { NewValue = e.IsFocusable; }
+    }
+
 
     internal sealed class InvalidateUIElementMessage<Element> : UIElementMessage<Element>
         where Element : UIElement

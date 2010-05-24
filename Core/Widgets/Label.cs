@@ -56,6 +56,7 @@ namespace Conwid.Core.Widgets
             this.text = text;
             this.centered = centered;
             this.color = color ?? InactiveLabelColor;
+            IsFocusable = false;
         }
 
         // Handles:

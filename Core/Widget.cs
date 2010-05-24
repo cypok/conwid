@@ -60,6 +60,20 @@ namespace Conwid.Core
                 return parent.ActiveElement == this && parent.IsActive;
             }
         }
+        
+        private bool isFocusable = true;
+        public override bool IsFocusable
+        {
+            get { return isFocusable;}
+            set
+            {
+                if(value == isFocusable)
+                    return; //nothing changed
+
+                isFocusable = value;
+                Parent.SendMessage( new IsFocusableChangedMessage<Widget>(this) );
+            }
+        }
 
         protected void Emit(MulticastDelegate d, params object[] objs)
         {

@@ -38,6 +38,8 @@ namespace Conwid.Core
 
         public bool IsEnabled { get; protected set; }
 
+        abstract public bool IsFocusable { get; set; }
+
         abstract public bool IsActive { get; }
         
         public UIElement(Rectangle area)
