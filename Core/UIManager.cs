@@ -119,12 +119,11 @@ namespace Conwid.Core
 
         private IEnumerable<Child> LowerElements(Child c)
         {
-            return children_order.FindAll(x => children_order.IndexOf(x) > children_order.IndexOf(c));
+            return children_order.Where((x, i) => i > children_order.IndexOf(c));
         }
         private IEnumerable<Child> UpperElements(Child c)
         {
-            // TODO: Where with index
-            return children_order.FindAll(x => children_order.IndexOf(x) < children_order.IndexOf(c));
+            return children_order.Where((x, i) => i < children_order.IndexOf(c));
         }
         #endregion // Collection Helpers
 
@@ -297,7 +296,7 @@ namespace Conwid.Core
 
         public override void Draw(DrawSpace ds)
         {
-            var childrenToRedraw = children.FindAll( c => ds.IsAffecting(c.Area) );
+            var childrenToRedraw = children.Where( c => ds.IsAffecting(c.Area) );
 
             var bgDS = ds.CreateSubSpace(null, childrenToRedraw.Select(x => x.Area));
             if(Parent == null)
