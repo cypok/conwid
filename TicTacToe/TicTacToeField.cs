@@ -67,12 +67,14 @@ namespace TicTacToe
 	    {
 	        Empty,
             Cross,
-            Nought
+            Nought,
+            Draw
 	    }
 
         Type[,] field = new Type[3,3];
         Point currentPoint;
         Type turn;
+        public Type Turn { get { return turn; } }
 
         #endregion // Fields & Properties
 
@@ -207,18 +209,32 @@ namespace TicTacToe
 
         private bool CheckGameOver()
         {
-            Type winner = Type.Empty;
-            for(int i = 0; i < 3; ++i)
+            bool draw = true;
+            foreach( var f in field )
             {
-                if(field[i,0] == field[i,1] && field[i,1] == field[i,2] && field[i,1] != Type.Empty)
-                    winner = field[i,1];
-                if(field[0,i] == field[1,i] && field[1,i] == field[2,i] && field[1,i] != Type.Empty)
-                    winner = field[1,i];
+                draw = draw && (f != Type.Empty);
             }
-            if(field[0,0] == field[1,1] && field[1,1] == field[2,2] && field[1,1] != Type.Empty)
-                winner = field[1,1];
-            if(field[2,0] == field[1,1] && field[1,1] == field[0,2] && field[1,1] != Type.Empty)
-                winner = field[1,1];
+
+            Type winner;
+            if( draw )
+            {
+                winner = Type.Draw;
+            }
+            else
+            {
+                winner = Type.Empty;
+                for(int i = 0; i < 3; ++i)
+                {
+                    if(field[i,0] == field[i,1] && field[i,1] == field[i,2] && field[i,1] != Type.Empty)
+                        winner = field[i,1];
+                    if(field[0,i] == field[1,i] && field[1,i] == field[2,i] && field[1,i] != Type.Empty)
+                        winner = field[1,i];
+                }
+                if(field[0,0] == field[1,1] && field[1,1] == field[2,2] && field[1,1] != Type.Empty)
+                    winner = field[1,1];
+                if(field[2,0] == field[1,1] && field[1,1] == field[0,2] && field[1,1] != Type.Empty)
+                    winner = field[1,1];
+            }
 
             if(winner != Type.Empty)
             {
