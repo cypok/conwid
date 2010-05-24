@@ -18,21 +18,23 @@ namespace Demo
 
             var wg = new WidgetGroup[]
             {
-                new WidgetGroup(theLoop.WidgetManager, new Rectangle(3,2,45,12), "First"),
-                new WidgetGroup(theLoop.WidgetManager, new Rectangle(12,6,45,18)),
-                new WidgetGroup(theLoop.WidgetManager, new Rectangle(21,10,45,12), "With really long long long name"),
+                new WidgetGroup(null, new Rectangle(3,2,45,12), "First"),
+                new WidgetGroup(null, new Rectangle(12,6,45,18)),
+                new WidgetGroup(null, new Rectangle(21,10,45,12), "With really long long long name"),
             };
+            var hidden = new WidgetGroup(null, new Rectangle(1, 10, 8, 10), "hidden");
 
-
-            new LineEdit( wg[0], wg[0].ClientArea.Location, wg[0].ClientArea.Width, "Hello, World!");
+            new LineEdit( wg[0], new Point(1,1), 15, "Hello, World!");
             new LineEdit( wg[0], new Point(1,3), 4, "0123456789");
             new CheckBox( wg[0], new Point(2,5), "nsu student");
+            var more = new Button( wg[0] , new Point(1,7), "gimme more", height:1);
             var btTitle = new Button( wg[1], new Point(1,1), "Change title", height: 1);
             new Button( wg[1], new Point(1,3), "Push Me", height: 1, width: 7);
-            new Button( wg[1], new Point(1,5), "Push Me", height: 1, width: 13);
+            var openSecret = new Button( wg[1], new Point(1,5), "Secret!", height: 1, width: 13);
             new Button( wg[1], new Point(1,7), "Big Push Me");
             new Button( wg[1], new Point(1,10), "Bigger Push Me", height: 5, width: 22);
-
+            var secret = new Button( null, new Point (1, 16), "Woohoo!", height: 1 );
+            
             btTitle.OnPressed += (
                 _ => (btTitle.Parent as WidgetGroup).Title = "Changed!"
             );
@@ -55,7 +57,19 @@ namespace Demo
             cbCSharp.OnStateChanged +=
                 (_, state, __) => cbRuby.State = !state;
 
-            Console.CursorVisible = false;
+            var secret_opened = false;
+            openSecret.OnPressed += _ =>
+            {
+                secret.Parent = secret_opened ? null : openSecret.Parent;
+                secret_opened = !secret_opened;
+            };
+
+            more.OnPressed += _ => hidden.Parent = theLoop.WidgetManager;
+
+            // if you first add widgets to widget groups, and then add widget groups to widget manager,
+            // then there will be no unnecessary redraw at all
+            foreach( var g in wg )
+                g.Parent = theLoop.WidgetManager;
 
             theLoop.Run();
 

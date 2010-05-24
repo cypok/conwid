@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Conwid.Core
 {
     using Messages;
+    using System.Drawing;
     
-    struct MesssageContainer
+    internal class MesssageContainer
     {
         public IMessage message;
         public IMessageHandler receiver;
@@ -40,7 +42,7 @@ namespace Conwid.Core
 
         readonly ConsoleKeyInfo ExitKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Q, control: true, shift: false, alt: false);
 
-        Queue<MesssageContainer> queue = new Queue<MesssageContainer>();
+        List<MesssageContainer> queue = new List<MesssageContainer>();
         UIManager<UIManager<Widget>> widgetManager = new UIManager<UIManager<Widget>>();
         bool stopped;
         int retcode;
@@ -51,14 +53,31 @@ namespace Conwid.Core
         {
             if(receiver == null)
                 throw new ArgumentNullException("receiver");
-
-            queue.Enqueue( new MesssageContainer(receiver, msg) );
+            
+            if( msg is GlobalRedrawMessage )
+            {
+                var new_msg = (GlobalRedrawMessage)msg;
+                // Find another GlobalRedrawMessage message
+                var another_mc = queue.Find( mc => mc.receiver == receiver && mc.message is GlobalRedrawMessage );
+                if(another_mc != null)
+                {
+                    queue.Remove(another_mc);
+                    var old_msg = (GlobalRedrawMessage)another_mc.message;
+                    // if one of the messages has empty Rects collection, it means full invalidate,
+                    // so we should leave it empty, otherwise we should concatenate collections
+                    var rects = old_msg.Rects.IsEmpty() || new_msg.Rects.IsEmpty() ?
+                                new Rectangle[0] : old_msg.Rects.Concat(new_msg.Rects); 
+                    
+                    msg = new GlobalRedrawMessage(rects);
+                }
+            }
+            queue.PushBack( new MesssageContainer(receiver, msg) );
         }
 
         public void SendMessage(IMessageHandler receiver, IMessage msg)
         {
             if(receiver == null)
-                return;
+                throw new ArgumentNullException("receiver");
 
             receiver.Handle(msg);
         }
@@ -79,7 +98,7 @@ namespace Conwid.Core
             {
                 var keyInfo = (msg as KeyPressedMessage).KeyInfo;
                 if( keyInfo.EqualsTo(ExitKeyInfo) )
-                    this.PostMessage(new QuitMessage());
+                    this.SendMessage(new QuitMessage());
                 else
                     WidgetManager.SendMessage(msg);
 
@@ -89,10 +108,13 @@ namespace Conwid.Core
                 Console.Title = (msg as SetTitleMessage).Title;
             }
         }
+        public bool IsEnabled { get { return true; } }
 
         public int Run()
         {
             stopped = false;
+            var oldCursorVisible = Console.CursorVisible;
+            Console.CursorVisible = false;
 
             do
             {
@@ -102,12 +124,15 @@ namespace Conwid.Core
                 if(queue.IsEmpty())
                     continue;
 
-                var mc = queue.Dequeue();
-                SendMessage(mc.receiver, mc.message);
+                var mc = queue.PopFront();
+                if(mc.receiver.IsEnabled)
+                    SendMessage(mc.receiver, mc.message);
             }
             while(!stopped);
 
             queue.Clear();
+            Console.Clear();
+            Console.CursorVisible = oldCursorVisible;
             return retcode;
         }
     }

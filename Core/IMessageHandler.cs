@@ -4,6 +4,7 @@ namespace Conwid.Core
 {
     public interface IMessageHandler
     {
+        bool IsEnabled {get;}
         void Handle(IMessage msg);
     }
 

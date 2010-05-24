@@ -76,7 +76,7 @@ namespace Conwid.Core.Widgets
             if( keyInfo.EqualsTo(PushButtonKeyInfo))
             {
                 Emit(OnPressed, this);
-                Invalidate();
+                //Invalidate(); // Is it needed?! Anyway, temporarily commented for debugging purposes
             }
         }
 

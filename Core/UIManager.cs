@@ -14,12 +14,19 @@ namespace Conwid.Core
         where Child : UIElement
     {
         #region Constants
-
+        
         public static readonly ConsoleKeyInfo TopLevelNextElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: false, alt: false);
         public static readonly ConsoleKeyInfo TopLevelPrevElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: true, shift: true, alt: false);
 
         public static readonly ConsoleKeyInfo NormalNextElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: false, alt: false);
         public static readonly ConsoleKeyInfo NormalPrevElementKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.Tab, control: false, shift: true, alt: false);
+
+        public static readonly ConsoleKeyInfo CloseKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.W, control: true, shift: false, alt: false);
+
+        public static readonly ConsoleKeyInfo UpKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.UpArrow, control: true, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo DownKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.DownArrow, control: true, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo LeftKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.LeftArrow, control: true, shift: false, alt: false);
+        public static readonly ConsoleKeyInfo RightKeyInfo = new ConsoleKeyInfo('_', ConsoleKey.RightArrow, control: true, shift: false, alt: false);
 
         readonly Color ActiveFrameColor = new Color()
         {
@@ -42,12 +49,21 @@ namespace Conwid.Core
         private List<Child> children = new List<Child>();
         UIManager<UIManager<Child>> parent;
 
+        private List<Child> children_order = new List<Child>();
+
+        public Child ActiveElement
+        {
+            get
+            {
+                return children_order.FirstOrDefault();
+            }
+        }
+
         private static UIElement topLevelManager; // used to avoid creation of more than one top-level UIManager
 
         private ConsoleKeyInfo nextElementKeyInfo;
         private ConsoleKeyInfo prevElementKeyInfo;
-
-        
+                
         string title;
         public string Title
         { 
@@ -58,6 +74,8 @@ namespace Conwid.Core
                 Invalidate();
             }
         }
+
+        private static bool firstDraw = true;
         
         #endregion // Fields and Properties
 
@@ -67,13 +85,14 @@ namespace Conwid.Core
         /// Creates top-level UIManager
         /// </summary>
         internal UIManager(ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
-            : base( new Rectangle(Point.Empty, DrawSpace.Screen.Size) )
+            : base( new Rectangle(Point.Empty, DrawSpace.ScreenSize) )
         {
             if (topLevelManager != null)
                 throw new InvalidOperationException("Only one top-level UIManager allowed");
 
             topLevelManager = this;
             parent = null;
+            IsEnabled = true;
 
             nextElementKeyInfo = nextElemKeyInfo ?? TopLevelNextElementKeyInfo;
             prevElementKeyInfo = prevElemKeyInfo ?? TopLevelPrevElementKeyInfo;
@@ -86,9 +105,6 @@ namespace Conwid.Core
                          ConsoleKeyInfo? nextElemKeyInfo = null, ConsoleKeyInfo? prevElemKeyInfo = null)
             : base(area)
         {
-            if (parent == null)
-                throw new ArgumentNullException("parent_");
-
             Parent = parent;
 
             this.title = title;
@@ -103,17 +119,13 @@ namespace Conwid.Core
 
         private IEnumerable<Child> LowerElements(Child c)
         {
-            return children.FindAll(x => children.IndexOf(x) > children.IndexOf(c));
+            return children_order.FindAll(x => children_order.IndexOf(x) > children_order.IndexOf(c));
         }
         private IEnumerable<Child> UpperElements(Child c)
         {
-            return children.FindAll(x => children.IndexOf(x) < children.IndexOf(c));
+            // TODO: Where with index
+            return children_order.FindAll(x => children_order.IndexOf(x) < children_order.IndexOf(c));
         }
-        public Child ActiveElement
-        {
-            get { return children.FirstOrDefault(); }
-        }
-
         #endregion // Collection Helpers
 
         #region Message Handling (Main functionality here)
@@ -136,31 +148,31 @@ namespace Conwid.Core
                 {
                     if(children.Contains(e))
                         throw new InvalidOperationException("Element already added to UIManager");
-                    children.Insert(0, e);
-                    // TODO: invalidate only affected area
+
+                    var oldActive = ActiveElement;
+
+                    children.Add(e);
+                    children_order.Add(e);//Insert(0, e);
+
+                    if( oldActive != null)
+                        oldActive.Invalidate();
                     e.Invalidate();
                 }
                 else if(msg is RemoveUIElementMessage<Child>)
                 {
+                    children_order.Remove(e);
                     children.Remove(e);
-                    // TODO: invalidate only affected area
-                    Invalidate();
+
+                    e.Invalidate();
+                    if( ActiveElement != null)
+                        ActiveElement.Invalidate();
                 }
                 else if(msg is InvalidateUIElementMessage<Child>)
                 {
                     Rectangle? rect = (msg as InvalidateUIElementMessage<Child>).Rect;
                     Rectangle actualInvalidRect = rect ?? new Rectangle(Point.Empty, e.Size);
                     actualInvalidRect.Offset(e.Area.Location);
-
-                    if(Parent != null)
-                    {
-                        Invalidate(actualInvalidRect);
-                    }
-                    else
-                    {
-                        // else I'm the big boss :)
-                        DrawChild(e, DrawSpace.Screen.Restrict(actualInvalidRect));
-                    }
+                    Invalidate(actualInvalidRect);
                 }
             }
             else if(msg is KeyPressedMessage)
@@ -175,6 +187,28 @@ namespace Conwid.Core
                 {
                     this.SendMessage(new SwitchUIElementMessage(next: false));
                 }
+                else if(keyInfo.EqualsTo(CloseKeyInfo) && Parent != null)
+                {
+                    // Close it, if it is not top-level
+                    Parent = null;
+                }
+                // Moving: if not top-level
+                else if(keyInfo.EqualsTo(UpKeyInfo) && Parent != null)
+                {
+                    Location = Location + new Size(0, -1);
+                }
+                else if(keyInfo.EqualsTo(DownKeyInfo) && Parent != null)
+                {
+                    Location = Location + new Size(0, 1);
+                }
+                else if(keyInfo.EqualsTo(LeftKeyInfo) && Parent != null)
+                {
+                    Location = Location + new Size(-1, 0);
+                }
+                else if(keyInfo.EqualsTo(RightKeyInfo) && Parent != null)
+                {
+                    Location = Location + new Size(1, 0);
+                }
                 else if(ActiveElement != null)
                 {
                     ActiveElement.SendMessage(msg);
@@ -183,20 +217,28 @@ namespace Conwid.Core
             }
             else if(msg is SwitchUIElementMessage && !children.IsEmpty())
             {
+                var oldActiveIndex = children.IndexOf(children_order[0]);
+                int newActiveIndex;
                 if((msg as SwitchUIElementMessage).Next)
-                    children.MoveToEnding(0);
+                {
+                    newActiveIndex = (oldActiveIndex + 1)%children_order.Count;
+                }
                 else
-                    children.MoveToBeginning(children.Count - 1);
+                {
+                    newActiveIndex = (oldActiveIndex - 1 + children_order.Count)%children_order.Count; // additional `+ children_order.Count` needed to exclude negative numbers
+                }
+                
+                children_order.MoveToBeginning( children_order.IndexOf(children[newActiveIndex]) );
 
-                foreach (var e in children)
-                    e.Invalidate();
-
+                children[oldActiveIndex].Invalidate();
+                children[newActiveIndex].Invalidate();
             }
             else if(msg is GlobalRedrawMessage)
             {
                 if(Parent != null)
-                    throw new InvalidOperationException("GlobalRedrawMessage");
-                Draw(DrawSpace.Screen);
+                    throw new InvalidOperationException("Only top-level UIManagers can handle GlobalRedrawMessage");
+                var rects = (msg as GlobalRedrawMessage).Rects;
+                Draw(DrawSpace.Screen.Restrict(rects));
             }
         }
 
@@ -210,12 +252,9 @@ namespace Conwid.Core
             set
             {
                 // copypaste from Widget, but how to do it otherwise? :(
-                if (value is UIManager<UIManager<Child>>)
+                if (value == null || value is UIManager<UIManager<Child>>)
                 {
                     var newParent = value as UIManager<UIManager<Child>>;
-
-                    if(newParent == null)
-                        throw new ArgumentNullException();
 
                     if(newParent == parent) // nothing changed
                         return;
@@ -225,7 +264,15 @@ namespace Conwid.Core
                         parent.SendMessage(new RemoveUIElementMessage<UIManager<Child>>(this));
 
                     parent = newParent;
-                    parent.SendMessage(new AddUIElementMessage<UIManager<Child>>(this));
+                    if(parent != null)
+                    {
+                        parent.SendMessage(new AddUIElementMessage<UIManager<Child>>(this));
+                        IsEnabled = true;
+                    }
+                    else
+                    {
+                        IsEnabled = false;
+                    }
                 }
                 else
                 {
@@ -250,7 +297,6 @@ namespace Conwid.Core
 
         public override void Draw(DrawSpace ds)
         {
-            // TODO: Choose affected
             var childrenToRedraw = children.FindAll( c => ds.IsAffecting(c.Area) );
 
             var bgDS = ds.CreateSubSpace(null, childrenToRedraw.Select(x => x.Area));
@@ -279,7 +325,13 @@ namespace Conwid.Core
             if(Parent != null)
                 Parent.PostMessage( new InvalidateUIElementMessage<UIManager<Child>>(this, rect) );
             else
-                this.PostMessage(new GlobalRedrawMessage());
+            {
+                // else I'm the big boss :)
+                if(firstDraw)
+                    rect = null; // on first draw draw itself entirely
+                firstDraw = false;
+                this.PostMessage(new GlobalRedrawMessage(rect));
+            }
         }
 
         #endregion // IUIElement Properties & Methods
