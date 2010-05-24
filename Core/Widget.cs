@@ -51,11 +51,14 @@ namespace Conwid.Core
             }
         }
         
-        public bool IsActive()
+        public override bool IsActive
         {
-            if(parent == null)
-                return false;
-            return parent.ActiveElement == this && parent.IsActive();
+            get
+            {
+                if(parent == null)
+                    return false;
+                return parent.ActiveElement == this && parent.IsActive;
+            }
         }
 
         protected void Emit(MulticastDelegate d, params object[] objs)

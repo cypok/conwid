@@ -287,11 +287,14 @@ namespace Conwid.Core
             c.Draw( ds.CreateSubSpace(c.Area, UpperElements(c).Select(x => x.Area)) );
         }
 
-        public bool IsActive()
+        public override bool IsActive
         {
-            if(parent == null)
-                return true;
-            return parent.ActiveElement == this && parent.IsActive();
+            get
+            {
+                if(parent == null)
+                    return true;
+                return parent.ActiveElement == this && parent.IsActive;
+            }
         }
 
         public override void Draw(DrawSpace ds)
@@ -307,7 +310,7 @@ namespace Conwid.Core
             else
             {
                 // Normal drawing
-                bgDS.Color = IsActive() ? ActiveFrameColor : InactiveFrameColor;
+                bgDS.Color = IsActive ? ActiveFrameColor : InactiveFrameColor;
 
                 var rect = new Rectangle(Point.Empty, Size);
                 bgDS.DrawBorder(rect, DrawSpace.DoubleBorder, Title);

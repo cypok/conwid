@@ -83,7 +83,7 @@ namespace Conwid.Core.Widgets
         public override void Draw(DrawSpace ds)
         {            
             // border
-            ds.Color = IsActive() ? ActiveBorderButtonColor : InactiveBorderButtonColor;
+            ds.Color = IsActive ? ActiveBorderButtonColor : InactiveBorderButtonColor;
             // height is odd
             if( Area.Height == 1 )
             {
@@ -98,7 +98,7 @@ namespace Conwid.Core.Widgets
             }
                 
             // text
-            ds.Color = IsActive() ? ActiveTextButtonColor : InactiveTextButtonColor;
+            ds.Color = IsActive ? ActiveTextButtonColor : InactiveTextButtonColor;
             ds.PutString(new Point(1,Area.Height/2), Text, Area.Width-2, centered: true);
             if( Area.Height > 3 )
             {

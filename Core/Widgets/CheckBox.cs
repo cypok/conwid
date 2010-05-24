@@ -102,10 +102,10 @@ namespace Conwid.Core.Widgets
 
         public override void Draw(DrawSpace ds)
         {
-            ds.Color = IsActive() ? ActiveBoxCheckBoxColor : InactiveBoxCheckBoxColor;
+            ds.Color = IsActive ? ActiveBoxCheckBoxColor : InactiveBoxCheckBoxColor;
             ds.PutString(Point.Empty, State ? CheckCharacter.ToString() : " ", 1);
             
-            ds.Color = IsActive() ? ActiveTextCheckBoxColor : InactiveTextCheckBoxColor;
+            ds.Color = IsActive ? ActiveTextCheckBoxColor : InactiveTextCheckBoxColor;
             var outText = " " + Text;
 
             ds.PutString(new Point(1,0), outText, Area.Width-1);

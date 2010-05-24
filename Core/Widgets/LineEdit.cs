@@ -114,10 +114,10 @@ namespace Conwid.Core.Widgets
 
         public override void Draw(DrawSpace ds)
         {
-            ds.Color = IsActive() ? ActiveLineEditColor : InactiveLineEditColor;
+            ds.Color = IsActive ? ActiveLineEditColor : InactiveLineEditColor;
 
             var outText = Text.Substring( TextRolling, Math.Min(Area.Width, Text.Length-TextRolling) );
-            if( IsActive() && outText.Length < Area.Width )
+            if( IsActive && outText.Length < Area.Width )
                 outText += "_";
 
             ds.PutString(Point.Empty, outText, Area.Width);

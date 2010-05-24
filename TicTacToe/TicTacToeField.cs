@@ -163,7 +163,7 @@ namespace TicTacToe
         public override void Draw(DrawSpace ds)
         {
             // border
-            ds.Color = IsActive() ? ActiveBorderColor : InactiveBorderColor;
+            ds.Color = IsActive ? ActiveBorderColor : InactiveBorderColor;
             // Characters: ┌ ┐ ┘ └ ─ │ ─ │ ┬ ┤ ┴ ├ ┼
             ds.DrawBorder(new Rectangle(0,0,5,4), "┌┬┼├─│─│");
             ds.DrawBorder(new Rectangle(8,0,5,4), "┬┐┤┼─│─│");
@@ -188,13 +188,13 @@ namespace TicTacToe
                     switch (field[i,j])
                     {
                         case Type.Empty:
-                            ds.Color = IsActive() ? ActiveEmptyColor : InactiveEmptyColor;
+                            ds.Color = IsActive ? ActiveEmptyColor : InactiveEmptyColor;
                             break;
                         case Type.Cross:
-                            ds.Color = IsActive() ? ActiveCrossColor : InactiveCrossColor;
+                            ds.Color = IsActive ? ActiveCrossColor : InactiveCrossColor;
                             break;
                         case Type.Nought:
-                            ds.Color = IsActive() ? ActiveNoughtColor : InactiveNoughtColor;
+                            ds.Color = IsActive ? ActiveNoughtColor : InactiveNoughtColor;
                             break;
                         default:
                             break;
