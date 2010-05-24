@@ -89,8 +89,7 @@ namespace TicTacToe
             );
 
             var firstTurnChange = true;
-            gameField.OnTurnChanged += (
-                (_, turn, __) => {
+            TicTacToeField.TurnChangeHandler turnChangedFunc = (_, turn, __) => {
                     var cross = (turn == TicTacToeField.Type.Cross);
 
                     playerStatus1.Text = cross ? "->" : "  ";
@@ -105,25 +104,32 @@ namespace TicTacToe
                     {
                         firstTurnChange = false;
                     }
-                }
-            );
+                };
+            gameField.OnTurnChanged += turnChangedFunc;
+              
             gameField.OnGameOver += (
                 (_, winner) => {
-                    var cross = (winner == TicTacToeField.Type.Cross);
-                    
-                    playerStatus1.Text = cross ? "+1" : "  ";
-                    playerStatus2.Text = cross ? "  " : "+1";
-
-                    winnerName.Text = cross ? lePlayerName1.Text : lePlayerName2.Text;
-                    winnerMsg.Text = "rocks!";
-                    firstTurnChange = true;
-
-                    if( cross )
-                        playerScore1.Text = (1+int.Parse(playerScore1.Text)).ToString();
+                    if( winner == TicTacToeField.Type.Draw )
+                    {
+                        winnerMsg.Text = "Draw...";
+                    }
                     else
-                        playerScore2.Text = (1+int.Parse(playerScore2.Text)).ToString();
+                    {
+                        var cross = (winner == TicTacToeField.Type.Cross);
+
+                        winnerName.Text = cross ? lePlayerName1.Text : lePlayerName2.Text;
+                        winnerMsg.Text = "rocks!";
+
+                        if( cross )
+                            playerScore1.Text = (1+int.Parse(playerScore1.Text)).ToString();
+                        else
+                            playerScore2.Text = (1+int.Parse(playerScore2.Text)).ToString();
+                    }
+                    firstTurnChange = true;
                 }
             );
+
+            turnChangedFunc.Invoke(null, gameField.Turn, gameField.Turn);
 
             Console.CursorVisible = false;
 
