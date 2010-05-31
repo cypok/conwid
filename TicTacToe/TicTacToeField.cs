@@ -8,6 +8,12 @@ namespace TicTacToe
 {
     using Color = Conwid.Core.Color;
 
+    public sealed class MakeMoveMessage : IMessage
+    {
+        public Point Point { get; private set; }
+        public MakeMoveMessage(Point point) { Point = point; }
+    }
+
     class TicTacToeField : Widget
     {
         #region Constants
@@ -63,7 +69,7 @@ namespace TicTacToe
         
         #region Fields & Properties
 
-        public enum Type
+        public enum Cell
 	    {
 	        Empty,
             Cross,
@@ -71,19 +77,20 @@ namespace TicTacToe
             Draw
 	    }
 
-        Type[,] field = new Type[3,3];
+        Cell[,] field = new Cell[3,3];
+        public Cell[,] Field { get { return field; } }
         Point currentPoint;
-        Type turn;
-        public Type Turn { get { return turn; } }
+        Cell turn;
+        public Cell Turn { get { return turn; } }
 
         #endregion // Fields & Properties
 
         #region Events
         
-        public delegate void TurnChangeHandler(TicTacToeField field, Type newTurn, Type oldTurn);
+        public delegate void TurnChangeHandler(TicTacToeField field, Cell newTurn, Cell oldTurn);
         public event TurnChangeHandler OnTurnChanged;
 
-        public delegate void GameOverHandler(TicTacToeField field, Type winner);
+        public delegate void GameOverHandler(TicTacToeField field, Cell winner);
         public event GameOverHandler OnGameOver;
 
         #endregion // Events
@@ -94,18 +101,19 @@ namespace TicTacToe
             PrepareField();
         }
 
-        private void PrepareField()
+        public void PrepareField()
         {
             currentPoint = new Point(1,1);
             for(int i = 0; i < 3; ++i)
                 for(int j = 0; j < 3; ++j)
-                    field[i,j] = Type.Empty;
-            turn = (new Random()).NextDouble() > 0.5 ? Type.Cross : Type.Nought;
-            Emit(OnTurnChanged, this, turn, Type.Empty);
+                    field[i,j] = Cell.Empty;
+            turn = Cell.Cross;
+            Emit(OnTurnChanged, this, turn, Cell.Empty);
         }
         
         // Handles:
         // * KeyPressedMessage
+        // * MakeMoveMessage
         public override void Handle(IMessage msg)
         {
             if(msg is KeyPressedMessage)
@@ -145,21 +153,33 @@ namespace TicTacToe
                 }
                 else if( keyInfo.EqualsTo(PutMarkKeyInfo) )
                 {
-                    if( field[currentPoint.X, currentPoint.Y] == Type.Empty )
-                    {
-                        field[currentPoint.X, currentPoint.Y] = turn;
-                        
-                        if( ! CheckGameOver() )
-                        {
-                            var oldTurn = turn;
-                            turn = (oldTurn == Type.Cross) ? Type.Nought : Type.Cross;
-                            Emit(OnTurnChanged, this, turn, oldTurn);
-                        }
-                        Invalidate();
-                    }
+                    MakeMove();
                 }
             }
+            else if( msg is MakeMoveMessage )
+            {
+                MakeMove((msg as MakeMoveMessage).Point);
+            }
             return;
+        }
+
+        protected void MakeMove(Point? point = null)
+        {
+            var oldCurrentPoint = currentPoint;
+            currentPoint = point.GetValueOrDefault(currentPoint);
+            if( field[currentPoint.X, currentPoint.Y] == Cell.Empty )
+            {
+                field[currentPoint.X, currentPoint.Y] = turn;
+                        
+                if( ! CheckGameOver() )
+                {
+                    var oldTurn = turn;
+                    turn = (oldTurn == Cell.Cross) ? Cell.Nought : Cell.Cross;
+                    Emit(OnTurnChanged, this, turn, oldTurn);
+                }
+                Invalidate();
+            }
+            currentPoint = oldCurrentPoint;
         }
 
         public override void Draw(DrawSpace ds)
@@ -189,13 +209,13 @@ namespace TicTacToe
                     var pos = new Point(1+4*i, 1+3*j);
                     switch (field[i,j])
                     {
-                        case Type.Empty:
+                        case Cell.Empty:
                             ds.Color = IsActive ? ActiveEmptyColor : InactiveEmptyColor;
                             break;
-                        case Type.Cross:
+                        case Cell.Cross:
                             ds.Color = IsActive ? ActiveCrossColor : InactiveCrossColor;
                             break;
-                        case Type.Nought:
+                        case Cell.Nought:
                             ds.Color = IsActive ? ActiveNoughtColor : InactiveNoughtColor;
                             break;
                         default:
@@ -212,31 +232,31 @@ namespace TicTacToe
             bool draw = true;
             foreach( var f in field )
             {
-                draw = draw && (f != Type.Empty);
+                draw = draw && (f != Cell.Empty);
             }
 
-            Type winner;
+            Cell winner;
             if( draw )
             {
-                winner = Type.Draw;
+                winner = Cell.Draw;
             }
             else
             {
-                winner = Type.Empty;
+                winner = Cell.Empty;
                 for(int i = 0; i < 3; ++i)
                 {
-                    if(field[i,0] == field[i,1] && field[i,1] == field[i,2] && field[i,1] != Type.Empty)
+                    if(field[i,0] == field[i,1] && field[i,1] == field[i,2] && field[i,1] != Cell.Empty)
                         winner = field[i,1];
-                    if(field[0,i] == field[1,i] && field[1,i] == field[2,i] && field[1,i] != Type.Empty)
+                    if(field[0,i] == field[1,i] && field[1,i] == field[2,i] && field[1,i] != Cell.Empty)
                         winner = field[1,i];
                 }
-                if(field[0,0] == field[1,1] && field[1,1] == field[2,2] && field[1,1] != Type.Empty)
+                if(field[0,0] == field[1,1] && field[1,1] == field[2,2] && field[1,1] != Cell.Empty)
                     winner = field[1,1];
-                if(field[2,0] == field[1,1] && field[1,1] == field[0,2] && field[1,1] != Type.Empty)
+                if(field[2,0] == field[1,1] && field[1,1] == field[0,2] && field[1,1] != Cell.Empty)
                     winner = field[1,1];
             }
 
-            if(winner != Type.Empty)
+            if(winner != Cell.Empty)
             {
                 Emit(OnGameOver, this, winner);
                 PrepareField();

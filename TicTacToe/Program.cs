@@ -10,9 +10,17 @@ namespace TicTacToe
 {
     using WidgetGroup = UIManager<Widget>;
     using Color = Conwid.Core.Color;
+    using Cell = TicTacToeField.Cell;
 
     class Program
     {
+        static void Reset(Label score1, Label score2, TicTacToeField gameField)
+        {
+            score1.Text = "0";
+            score2.Text = "0";
+            gameField.PrepareField();
+        }
+
         static void Main(string[] args)
         {
             var theLoop = MessageLoop.Instance;
@@ -29,11 +37,6 @@ namespace TicTacToe
                 wgExtra.ClientArea.Location+new Size(1+wgExtra.ClientArea.Width/2,1),
                 wgExtra.ClientArea.Width/2-1,
                 "Bot");
-            var cbIsBot1 = new CheckBox(wgExtra,
-                wgExtra.ClientArea.Location + new Size(2, 3),
-                "bot",
-                width: wgExtra.ClientArea.Width/2-1,
-                state: false);
             var cbIsBot2 = new CheckBox(wgExtra,
                 wgExtra.ClientArea.Location + new Size(2+wgExtra.ClientArea.Width/2, 3),
                 "bot",
@@ -80,7 +83,14 @@ namespace TicTacToe
                 width: winnerName.Area.Width,
                 color: new Color(ConsoleColor.Yellow, ConsoleColor.Black));
 
+
             // connections
+            cbIsBot2.OnStateChanged += (
+                (_, state, __) => {
+                    Reset(playerScore1, playerScore2, gameField);
+                }
+            );
+
             lePlayerName1.OnTextChanged += (
                 (_, text, __) => playerStatusName1.Text = text
             );
@@ -90,10 +100,16 @@ namespace TicTacToe
 
             var firstTurnChange = true;
             TicTacToeField.TurnChangeHandler turnChangedFunc = (_, turn, __) => {
-                    var cross = (turn == TicTacToeField.Type.Cross);
+                    var cross = (turn == TicTacToeField.Cell.Cross);
 
                     playerStatus1.Text = cross ? "->" : "  ";
                     playerStatus2.Text = cross ? "  " : "->";
+
+                    if( cbIsBot2.State && !cross )
+                    {
+                        gameField.PostMessage(new MakeMoveMessage(
+                            BotEngine.GenerateMove(Cell.Nought, gameField.Field)));
+                    }
 
                     if( !firstTurnChange )
                     {
@@ -109,13 +125,13 @@ namespace TicTacToe
               
             gameField.OnGameOver += (
                 (_, winner) => {
-                    if( winner == TicTacToeField.Type.Draw )
+                    if( winner == Cell.Draw )
                     {
                         winnerMsg.Text = "Draw...";
                     }
                     else
                     {
-                        var cross = (winner == TicTacToeField.Type.Cross);
+                        var cross = (winner == Cell.Cross);
 
                         winnerName.Text = cross ? lePlayerName1.Text : lePlayerName2.Text;
                         winnerMsg.Text = "rocks!";
