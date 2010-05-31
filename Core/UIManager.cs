@@ -147,14 +147,27 @@ namespace Conwid.Core
                     if(children.Contains(e))
                         throw new InvalidOperationException("Element already added to UIManager");
 
-                    var oldActive = ActiveElement;
+                    if(e is Widget)
+                    {
+                        // if adding a widget it's inserted to the end
+                        // of list, to make tab order in forms natural
+                        // (first focused is first in list)
+                        children.Add(e);
+                    }
+                    else
+                    {
+                        // else, if adding a widget group,
+                        // then new child gets focus
 
-                    children.Add(e);
+                        var oldActive = ActiveElement;
+                        children.Insert(0,e);
+                        if( oldActive != null)
+                            oldActive.Invalidate();
+                    }
+
                     if(e.IsFocusable)
                         children_focus_order.Add(e);
 
-                    if( oldActive != null)
-                        oldActive.Invalidate();
                     e.Invalidate();
                 }
                 else if(msg is RemoveUIElementMessage<Child>)

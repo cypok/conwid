@@ -25,8 +25,8 @@ namespace TicTacToe
         {
             var theLoop = MessageLoop.Instance;
             
-            var wgExtra = new WidgetGroup(theLoop.WidgetManager, new Rectangle(1,1,21,8), "Score & Settings");
             var wgField = new WidgetGroup(theLoop.WidgetManager, new Rectangle(23,1,30,14), "Tic-Tac-Toe game");
+            var wgExtra = new WidgetGroup(theLoop.WidgetManager, new Rectangle(1,1,21,8), "Score & Settings");
             
             // widgets
             var lePlayerName1 = new LineEdit(wgExtra,
