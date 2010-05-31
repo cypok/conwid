@@ -109,6 +109,7 @@ namespace TicTacToe
                     field[i,j] = Cell.Empty;
             turn = Cell.Cross;
             Emit(OnTurnChanged, this, turn, Cell.Empty);
+            Invalidate();
         }
         
         // Handles:
